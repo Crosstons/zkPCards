@@ -9,7 +9,7 @@ import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ER
 contract zkPCard is ERC721, ERC721Pausable, Ownable, ERC721Burnable {
     uint256 private _nextTokenId;
 
-    constructor() ERC721("zkPCard", "ZKPC") Ownable(msg.sender) {}
+    constructor(address owner) ERC721("zkPCard", "ZKPC") Ownable(owner) {}
 
     function pause() public onlyOwner {
         _pause();
