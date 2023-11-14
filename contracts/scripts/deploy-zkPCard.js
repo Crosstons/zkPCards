@@ -6,7 +6,11 @@ async function main() {
   const deployer = signers[0];
   console.log(deployer.address);
   const zkPCardContract = await ethers.getContractFactory("zkPCard");
-  const deployedzkPContract = await zkPCardContract.deploy(deployer.address);
+  const deployedzkPContract = await zkPCardContract.deploy(
+    "zkPCard",
+    "ZKPC",
+    deployer.address
+  );
   console.log("zkPCard Contract Deployed!");
   console.log(`Contract Address:  ${deployedzkPContract.target} `);
   console.log(
