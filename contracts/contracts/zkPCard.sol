@@ -12,83 +12,109 @@ contract zkPCard is ERC721, ERC721Burnable, Pausable, Ownable {
     error TransferFailed();
     error CardExpired();
     error NotAuthorized();
-    error InsufficientBalance();
+    error ZeroAmountIssued();
+    error InsufficientPoolBalance();
+    error InsufficientCredit();
+    error SendEnoughFunds();
+    error CardHasBeenDiscarded();
 
-    uint256 private _tokenId;
-    IERC20 public token;
+    uint256 private _tokenId = 1;
+    uint256 public poolSize;
+    string public poolName;
+
     struct CardInfo {
+        string cardName;
         uint256 amountIssued;
         uint256 amountSpent;
         uint256 expirationTime;
+        bool hasBeenDiscarded;
     }
     mapping (uint256 => CardInfo) cards;
 
-    constructor(string memory name, string memory symbol, address initialOwner, address tokenAddress) 
+    event CardIssued(uint256 tokenId, string cardName, address issuedTo, uint256 amountIssued, uint256 expirationTime);
+    event FundsSpentFromCard(uint256 tokenId, address recipient, uint256 spendAmount);
+    event FundsAddedToPool(uint256 amount, address addedBy);
+    event CardUpdated(uint256 tokenId, uint256 additionalAmount, uint256 newExpirationTime);
+    event CardDiscarded(uint256 tokenId);
+    event ContractPaused();
+    event ContractUnpaused();
+
+    constructor(string memory name, string memory symbol, address initialOwner) 
     ERC721(name, symbol) Ownable(initialOwner) 
     {
-        token = IERC20(tokenAddress);
+        poolName = name;
     }
 
     function issueCard(
+        string memory name,
         address to, 
         uint256 amountIssued,  
         uint256 expirationTime
     ) external onlyOwner 
     {
-        bool success = token.transferFrom(msg.sender, address(this), amountIssued);
-        if (!success) {
-            revert TransferFailed();
-        }
         uint256 tokenId = safeMint(to);
         CardInfo memory newCard = CardInfo({
+        cardName: name,
         amountIssued: amountIssued,
         amountSpent: 0,
-        expirationTime: expirationTime
+        expirationTime: expirationTime,
+        hasBeenDiscarded: false
         });
         cards[tokenId] = newCard;
+        emit CardIssued(tokenId, name, to, amountIssued, expirationTime);
     }
 
     function spendFromCard(uint256 tokenId, address recipient, uint256 spendAmount) external whenNotPaused {
+        CardInfo storage card = cards[tokenId];
         if (ownerOf(tokenId) != msg.sender) {
             revert NotAuthorized();
         }
-        if (block.timestamp > cards[tokenId].expirationTime) {
+        if (block.timestamp > card.expirationTime) {
             revert CardExpired();
         }
-        CardInfo storage card = cards[tokenId];
+        if (card.hasBeenDiscarded == true) {
+            revert CardHasBeenDiscarded();
+        }
         if (card.amountIssued == 0) {
-            revert InsufficientBalance();
+            revert ZeroAmountIssued();
         }
         if (card.amountIssued - card.amountSpent < spendAmount) {
-            revert InsufficientBalance();
+            revert InsufficientCredit();
+        }
+        if (address(this).balance < spendAmount) {
+            revert InsufficientPoolBalance();
         }
         card.amountSpent += spendAmount;
-        bool success = token.transfer(recipient, spendAmount);
-        if (!success) {
+        (bool success , ) = payable(recipient).call{ value : spendAmount}("");
+        if(!success) {
             revert TransferFailed();
         }
+        emit FundsSpentFromCard(tokenId, recipient, spendAmount);
     }
 
-    function addFundsToCard(uint256 tokenId, uint256 additionalAmount) external onlyOwner {
-        bool success = token.transferFrom(msg.sender, address(this), additionalAmount);
-        if (!success) {
-            revert TransferFailed();
+    function addFundsToPool(uint256 amount) external payable onlyOwner {
+        if (amount != msg.value) {
+           revert SendEnoughFunds(); 
         }
+        poolSize += amount;
+        emit FundsAddedToPool(amount, msg.sender);
+    }
+
+    function updateCard(
+        uint256 tokenId, 
+        uint256 additionalAmount,
+        uint256 newExpirationTime
+        ) external onlyOwner {
         CardInfo storage card = cards[tokenId];
         card.amountIssued += additionalAmount;
+        card.expirationTime = newExpirationTime;
+        emit CardUpdated(tokenId, additionalAmount, newExpirationTime);
     }
 
-    function removeFundsFromCard(uint256 tokenId) external onlyOwner {
+    function discardCard(uint256 tokenId) external onlyOwner {
         CardInfo storage card = cards[tokenId];
-        uint256 refundAmount = card.amountIssued - card.amountSpent;
-        card.amountIssued = 0;
-        card.amountSpent = 0;
-        if (refundAmount > 0) {
-            bool success = token.transfer(owner(), refundAmount);
-            if (!success) {
-                revert TransferFailed();
-            }
-        }
+        card.hasBeenDiscarded = true;
+        emit CardDiscarded(tokenId);
     }
 
     function getCardInfo(uint256 tokenId) public view returns(CardInfo memory) {
@@ -97,10 +123,12 @@ contract zkPCard is ERC721, ERC721Burnable, Pausable, Ownable {
 
     function pause() public onlyOwner {
         _pause();
+        emit ContractPaused();
     }
 
     function unpause() public onlyOwner {
         _unpause();
+        emit ContractUnpaused();
     }
 
     function safeMint(address to) internal returns(uint256) {

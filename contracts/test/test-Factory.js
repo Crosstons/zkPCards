@@ -5,7 +5,6 @@ describe("Factory Contract", function () {
     [this.deployer, this.other] = await ethers.getSigners();
     this.salt =
       "0x736f6d657468696e670000000000000000000000000000000000000000000000";
-    this.linkAdress = "0xa375fEfcA27a639361139718145dffc29A44cB6d";
     this.Factory = await ethers.getContractFactory("Factory");
   });
 
@@ -18,13 +17,12 @@ describe("Factory Contract", function () {
       this.salt,
       "Test",
       "TS",
-      this.deployer.address,
-      this.linkAdress
+      this.deployer.address
     );
     try {
       await this.factory
         .connect(this.deployer)
-        .newCardWithSalt(this.salt, "Test", "TS", this.linkAdress);
+        .newCardWithSalt(this.salt, "Test", "TS");
     } catch (error) {
       console.error("Function call reverted:", error.message);
     }
@@ -38,7 +36,7 @@ describe("Factory Contract", function () {
     try {
       await this.factory
         .connect(this.deployer)
-        .newCardWithoutSalt("Test", "TS", this.linkAdress);
+        .newCardWithoutSalt("Test", "TS");
     } catch (error) {
       console.error("Function call reverted:", error.message);
     }

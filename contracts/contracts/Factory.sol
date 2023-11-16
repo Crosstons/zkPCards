@@ -12,11 +12,10 @@ contract Factory {
 
     function newCardWithoutSalt(
         string memory name, 
-        string memory symbol, 
-        address tokenAddress
+        string memory symbol
     ) external returns (address) 
     {
-        zkPCard newCard = new zkPCard(name, symbol, msg.sender, tokenAddress);
+        zkPCard newCard = new zkPCard(name, symbol, msg.sender);
         cardsIssued[msg.sender].push(address(newCard));
         emit CardCreated(address(newCard));
         return address(newCard);
@@ -25,13 +24,12 @@ contract Factory {
     function newCardWithSalt(
         bytes32 salt, 
         string memory name, 
-        string memory symbol,
-        address tokenAddress
+        string memory symbol
     ) external returns (address) 
     {
         address initialOwner = msg.sender;
-        address computedAddress = computeAddress(salt, name, symbol, initialOwner, tokenAddress);
-        zkPCard newCard = new zkPCard{salt: salt}(name, symbol, initialOwner, tokenAddress);
+        address computedAddress = computeAddress(salt, name, symbol, initialOwner);
+        zkPCard newCard = new zkPCard{salt: salt}(name, symbol, initialOwner);
         if (address(newCard) != computedAddress) {
             revert AddressesDiffer();
         }
@@ -44,11 +42,10 @@ contract Factory {
         bytes32 salt, 
         string memory name, 
         string memory symbol, 
-        address initialOwner, 
-        address tokenAddress
+        address initialOwner
     ) public view returns (address) 
     {
-        bytes memory bytecode = abi.encodePacked(type(zkPCard).creationCode, abi.encode(name, symbol, initialOwner, tokenAddress));
+        bytes memory bytecode = abi.encodePacked(type(zkPCard).creationCode, abi.encode(name, symbol, initialOwner));
         return address(
             uint160(
                 uint256(
