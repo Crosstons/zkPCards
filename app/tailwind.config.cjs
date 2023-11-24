@@ -4,7 +4,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        Montserrat: "Montserrat",
+        
+        pop: "Poppins",
       },
     },
   },
