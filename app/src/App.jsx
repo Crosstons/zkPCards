@@ -4,7 +4,7 @@ import AllApps from "./pages/AllApps";
 import Analytics from "./pages/Analytics";
 import Authentication from "./pages/Authentication";
 import Settings from "./pages/Settings";
-import Stroage from "./pages/Stroage";
+import Dcards from "./pages/Dcards";
 
 const App = () => {
   return (
@@ -12,7 +12,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<AllApps />} />
         <Route path="/authentication" element={<Authentication />} />
-        <Route path="/stroage" element={<Stroage />} />
+        <Route path="/Dcards" element={<Dcards />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/analytics" element={<Analytics />} />
       </Routes>

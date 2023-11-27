@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useRef } from "react";
-import SubMenu from "./SubMenu";
 import { motion } from "framer-motion";
 import logo from "../assets/logo.png"
 
@@ -9,11 +8,11 @@ import { IoIosArrowBack } from "react-icons/io";
 import { SlSettings } from "react-icons/sl";
 import { AiOutlineAppstore } from "react-icons/ai";
 import { BsPerson } from "react-icons/bs";
-import { HiOutlineDatabase } from "react-icons/hi";
+import { HiOutlineCreditCard } from "react-icons/hi";
 import { TbReportAnalytics } from "react-icons/tb";
 import { RiBuilding3Line } from "react-icons/ri";
 import { useMediaQuery } from "react-responsive";
-import { CiWallet } from "react-icons/ci";
+import { IoWalletOutline } from "react-icons/io5";
 import { MdMenu } from "react-icons/md";
 import { NavLink, useLocation, useRoutes } from "react-router-dom";
 
@@ -70,10 +69,10 @@ const Sidebar = () => {
 
 
   return (
-    <div>
+    <div className="h-full">
       <div
         onClick={() => setOpen(false)}
-        className={`md:hidden fixed inset-0 max-h-screen z-[998] bg-black/50 ${
+        className={`md:hidden fixed inset-0 min-h-full z-[998] bg-black/50 ${
           open ? "block" : "hidden"
         } `}
       ></div>
@@ -82,7 +81,7 @@ const Sidebar = () => {
         variants={Nav_animation}
         initial={{ x: isTabletMid ? -250 : 0 }}
         animate={open ? "open" : "closed"}
-        className=" bg-white text-gray shadow-xl z-[999] max-w-[16rem]  w-[16rem] overflow-hidden md:relative fixed h-screen "
+        className=" bg-white text-gray z-[999] max-w-[16rem]  w-[16rem] overflow-hidden md:relative fixed min-h-screen shadow-right"
       >
         <div className="flex items-center gap-2.5 font-medium border-b py-3 border-slate-300  mx-3">
           <img src={logo} alt="" />
@@ -93,7 +92,7 @@ const Sidebar = () => {
           
           <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1  font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100   md:h-[68%] h-[70%]">
             <li>
-              <NavLink to={"/"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+              <NavLink to={"/analytics"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
                 <AiOutlineAppstore size={23} className="min-w-max" />
                 Pools
               </NavLink>
@@ -105,20 +104,21 @@ const Sidebar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to={"/stroage"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
-                <HiOutlineDatabase size={23} className="min-w-max" />
-                Stroage
+              <NavLink to={"/Dcards"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+                <HiOutlineCreditCard size={23} className="min-w-max" />
+                Cards
               </NavLink>
             </li>
             <li>
-              <NavLink to={"/settings"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+              <NavLink to={"/settings"} className="mb-4 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
                 <SlSettings size={23} className="min-w-max" />
                 Settings
               </NavLink>
             </li>
             <li>
+              <hr className="border"/>
               <button className="w-full p-2.5 mt-4 flex gap-6 md:cursor-pointer bg-blue-500 hover:bg-blue-600 transition-all duration-300 text-white font-normal rounded-lg hover:cursor-pointer shadow-blue-200 shadow-lg">
-                <CiWallet  size={23} className="min-w-max" />
+                <IoWalletOutline  size={23} className="min-w-max" />
                 Connect Wallet
               </button>
             </li>
