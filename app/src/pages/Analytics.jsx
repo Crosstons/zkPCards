@@ -78,6 +78,7 @@ function Analytics() {
               <span className='text-s'>View Detais</span>
           </button>
         </div>
+
       </div>
       </div>
     </div>
