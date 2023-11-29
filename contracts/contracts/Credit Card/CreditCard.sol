@@ -11,7 +11,7 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
     using OracleLib for AggregatorV3Interface;
 
     uint256 private _tokenId;
-    uint256 private constant LIQUIDATION_THRESHOLD = 50; 
+    uint256 private constant LIQUIDATION_THRESHOLD = 50;
     uint256 private constant LIQUIDATION_BONUS = 10;
     uint256 private constant LIQUIDATION_PRECISION = 100;
     uint256 private constant MIN_HEALTH_FACTOR = 1e18;
@@ -20,6 +20,7 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
     uint256 private constant FEED_PRECISION = 1e8;
     uint256 public expirationTime;
     uint256 public poolBalance;
+    uint256 public interestRate;
 
     address private constant WETH_ADDRESS = 0xdd13E55209Fd76AfE204dBda4007C227904f0a81;
     address private constant ETH_PRICE_FEED_ADDRESS = 0x694AA1769357215DE4FAC081bf1f309aDC325306;
@@ -38,28 +39,30 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
     mapping(uint256 => CardInfo) private cards;
 
     modifier moreThanZero(uint256 amount) {
-        require(amount > 0);
+        require(amount > 0, "Amount must be greater than zero");
         _;
     }
 
-    constructor(string memory _name, string memory _symbol, address _owner, uint256 _expirationTime) 
-    Ownable(_owner) ERC721(_name, _symbol)
+    constructor(
+        string memory _name, 
+        string memory _symbol, 
+        address _owner, 
+        uint256 _expirationTime,
+        uint256 _interestRate
+    ) 
+        Ownable(_owner) ERC721(_name, _symbol)
     {
         expirationTime = _expirationTime;
+        interestRate = _interestRate;
     }
 
-    function addFunds(uint256 fundsAmount) external onlyOwner moreThanZero(fundsAmount)
-    {
+    function addFunds(uint256 fundsAmount) public onlyOwner moreThanZero(fundsAmount) {
         poolBalance += fundsAmount;
         bool success = IERC20(DAI_ADDRESS).transferFrom(msg.sender, address(this), fundsAmount);
         require(success, "Transfer Failed!");
     }
 
-    function issueCard(
-        string memory cardName, 
-        uint256 issueAmount
-    ) external nonReentrant moreThanZero(issueAmount) 
-    {
+    function issueCard(string memory cardName, uint256 issueAmount) public nonReentrant moreThanZero(issueAmount) {
         uint256 issueAmountInUsd = _getUsdValue(DAI_PRICE_FEED_ADDRESS, issueAmount);
         uint256 collateralAmountInWeth = _getTokenAmountFromUsd(ETH_PRICE_FEED_ADDRESS, issueAmountInUsd * 2);
         bool success = IERC20(WETH_ADDRESS).transferFrom(msg.sender, address(this), collateralAmountInWeth);
@@ -75,6 +78,62 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
         });
     }
 
+    function spendFromCard(uint256 tokenId, uint256 spendAmount, address recipient) 
+        public nonReentrant moreThanZero(spendAmount) 
+    {
+        require(ownerOf(tokenId) == msg.sender, "Not the card owner");
+        CardInfo storage card = cards[tokenId];
+        require(!card.hasBeenDiscarded, "Card has been discarded");
+        require(block.timestamp <= card.expirationTime, "Card expired");
+        require(card.amountIssued >= card.amountSpent + spendAmount, "Exceeds card's spending limit");
+        require(spendAmount <= poolBalance, "Insufficient funds in pool");
+
+        card.amountSpent += spendAmount;
+        poolBalance -= spendAmount;
+
+        bool success = IERC20(DAI_ADDRESS).transfer(recipient, spendAmount);
+        require(success, "DAI transfer failed");
+    }
+
+    function liquidate(uint256 tokenId) public onlyOwner {
+        require(ownerOf(tokenId) != address(0), "TokenId doesn't exist");
+        uint256 healthFactor = calculateHealthFactor(tokenId);
+        require(healthFactor < MIN_HEALTH_FACTOR, "Health factor not low enough for liquidation");
+
+        CardInfo storage card = cards[tokenId];
+        require(!card.hasBeenDiscarded, "Card has already been discarded");
+
+        uint256 daiBalance = card.amountIssued - card.amountSpent;
+        require(daiBalance <= poolBalance, "Insufficient DAI in pool for liquidation");
+
+        poolBalance -= daiBalance;
+        card.hasBeenDiscarded = true;
+
+        bool collateralTransfer = IERC20(WETH_ADDRESS).transfer(owner(), card.collateralAmount);
+        require(collateralTransfer, "Collateral transfer failed");
+
+        bool daiTransfer = IERC20(DAI_ADDRESS).transfer(ownerOf(tokenId), daiBalance);
+        require(daiTransfer, "DAI transfer failed");
+    }
+
+    function repay(uint256 tokenId) public nonReentrant {
+        require(ownerOf(tokenId) == msg.sender, "Not the card owner");
+        CardInfo storage card = cards[tokenId];
+        require(!card.hasBeenDiscarded, "Card has been discarded");
+
+        uint256 amountOwed = card.amountSpent + ((card.amountSpent * interestRate) / 100);
+
+        bool daiTransfer = IERC20(DAI_ADDRESS).transferFrom(msg.sender, address(this), amountOwed);
+        require(daiTransfer, "DAI transfer for repayment failed");
+
+        poolBalance += amountOwed;
+        card.amountSpent = 0; 
+        card.hasBeenDiscarded = true;
+
+        bool collateralTransfer = IERC20(WETH_ADDRESS).transfer(msg.sender, card.collateralAmount);
+        require(collateralTransfer, "Collateral transfer failed");
+    }
+
     function _getUsdValue(address priceFeedAddress, uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(priceFeedAddress);
         (, int256 price,,,) = priceFeed.staleCheckLatestRoundData();
@@ -87,7 +146,32 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
         return ((usdAmountInWei * PRECISION) / (uint256(price) * ADDITIONAL_FEED_PRECISION));
     }
 
-    function safeMint(address to) private returns(uint256) {
+    function calculateHealthFactor(uint256 tokenId) public view returns (uint256) {
+        (uint256 totalDaiIssuedInUsd, uint256 totalCollateralInUsd) = _getAccountInformation(tokenId);
+        return _calculateHealthFactor(totalDaiIssuedInUsd, totalCollateralInUsd);
+    }
+
+    function _getAccountInformation(uint256 tokenId) private view returns (uint256 totalDaiIssuedInUsd, uint256 totalCollateralInUsd) {
+        CardInfo storage card = cards[tokenId];
+        
+        totalDaiIssuedInUsd = _getUsdValue(DAI_PRICE_FEED_ADDRESS, card.amountIssued);
+        totalCollateralInUsd = _getUsdValue(ETH_PRICE_FEED_ADDRESS, card.collateralAmount);
+
+        return (totalDaiIssuedInUsd, totalCollateralInUsd);
+    }
+
+    function _calculateHealthFactor(uint256 totalDaiIssuedInUsd, uint256 totalCollateralInUsd) private pure returns (uint256) {
+        if (totalDaiIssuedInUsd == 0) return type(uint256).max;
+        uint256 collateralAdjustedForThreshold = (totalCollateralInUsd * LIQUIDATION_THRESHOLD) / LIQUIDATION_PRECISION;
+        return (collateralAdjustedForThreshold * PRECISION) / totalDaiIssuedInUsd;
+    }
+
+    function revertIfHealthFactorIsBroken(uint256 tokenId) private view {
+        uint256 healthFactor = calculateHealthFactor(tokenId);
+        require(healthFactor >= MIN_HEALTH_FACTOR, "Health factor below minimum threshold");
+    }
+
+    function safeMint(address to) private returns (uint256) {
         uint256 tokenId = _tokenId++;
         _safeMint(to, tokenId);
         return tokenId;
