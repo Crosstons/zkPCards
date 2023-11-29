@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import "./zkPCard.sol";
+import {DebitCard} from "./DebitCard.sol";
 
-contract Factory {
+contract DCFactory {
     error AddressesDiffer();
 
     mapping (address => address[]) cardsIssued;
@@ -15,7 +15,7 @@ contract Factory {
         string memory symbol
     ) external returns (address) 
     {
-        zkPCard newCard = new zkPCard(name, symbol, msg.sender);
+        DebitCard newCard = new DebitCard(name, symbol, msg.sender);
         cardsIssued[msg.sender].push(address(newCard));
         emit CardCreated(address(newCard));
         return address(newCard);
@@ -29,7 +29,7 @@ contract Factory {
     {
         address initialOwner = msg.sender;
         address computedAddress = computeAddress(salt, name, symbol, initialOwner);
-        zkPCard newCard = new zkPCard{salt: salt}(name, symbol, initialOwner);
+        DebitCard newCard = new DebitCard{salt: salt}(name, symbol, initialOwner);
         if (address(newCard) != computedAddress) {
             revert AddressesDiffer();
         }
@@ -45,7 +45,7 @@ contract Factory {
         address initialOwner
     ) public view returns (address) 
     {
-        bytes memory bytecode = abi.encodePacked(type(zkPCard).creationCode, abi.encode(name, symbol, initialOwner));
+        bytes memory bytecode = abi.encodePacked(type(DebitCard).creationCode, abi.encode(name, symbol, initialOwner));
         return address(
             uint160(
                 uint256(

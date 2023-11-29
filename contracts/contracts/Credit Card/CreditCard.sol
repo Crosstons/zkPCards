@@ -12,7 +12,6 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
 
     uint256 private _tokenId;
     uint256 private constant LIQUIDATION_THRESHOLD = 50;
-    uint256 private constant LIQUIDATION_BONUS = 10;
     uint256 private constant LIQUIDATION_PRECISION = 100;
     uint256 private constant MIN_HEALTH_FACTOR = 1e18;
     uint256 private constant PRECISION = 1e18;
@@ -20,6 +19,7 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
     uint256 private constant FEED_PRECISION = 1e8;
     uint256 public expirationTime;
     uint256 public poolBalance;
+    uint256 public lockedFunds;
     uint256 public interestRate;
 
     address private constant WETH_ADDRESS = 0xdd13E55209Fd76AfE204dBda4007C227904f0a81;
@@ -76,6 +76,7 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
             expirationTime: block.timestamp + expirationTime,
             hasBeenDiscarded: false
         });
+        lockedFunds += issueAmount;
     }
 
     function spendFromCard(uint256 tokenId, uint256 spendAmount, address recipient) 
@@ -108,6 +109,7 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
 
         poolBalance -= daiBalance;
         card.hasBeenDiscarded = true;
+        lockedFunds -= card.amountIssued;
 
         bool collateralTransfer = IERC20(WETH_ADDRESS).transfer(owner(), card.collateralAmount);
         require(collateralTransfer, "Collateral transfer failed");
@@ -129,9 +131,17 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
         poolBalance += amountOwed;
         card.amountSpent = 0; 
         card.hasBeenDiscarded = true;
+        lockedFunds -= card.amountIssued;
 
         bool collateralTransfer = IERC20(WETH_ADDRESS).transfer(msg.sender, card.collateralAmount);
         require(collateralTransfer, "Collateral transfer failed");
+    }
+
+    function withdrawFunds(uint256 amount) public onlyOwner moreThanZero(amount) {
+        require(amount <= poolBalance - lockedFunds, "Amount exceeds unlocked funds");
+        poolBalance -= amount;
+        bool success = IERC20(DAI_ADDRESS).transfer(msg.sender, amount);
+        require(success, "Withdrawal failed");
     }
 
     function _getUsdValue(address priceFeedAddress, uint256 amount) public view returns (uint256) {
