@@ -9,7 +9,6 @@ import { SlSettings } from "react-icons/sl";
 import { AiOutlineAppstore } from "react-icons/ai";
 import { BsPerson } from "react-icons/bs";
 import { HiOutlineCreditCard } from "react-icons/hi";
-import { TbReportAnalytics } from "react-icons/tb";
 import { RiBuilding3Line } from "react-icons/ri";
 import { useMediaQuery } from "react-responsive";
 import { IoWalletOutline } from "react-icons/io5";
@@ -85,34 +84,50 @@ const Sidebar = () => {
       >
         <div className="flex items-center gap-2.5 font-medium border-b py-3 border-slate-300  mx-3">
           <img src={logo} alt="" />
-          <span className="text-3xl whitespace-pre mx-2">zkp<span className="text-blue-600 font-semibold">Cards</span></span>
+          <span className="text-3xl whitespace-pre mx-2">zkp<span className="text-blue-600 font-semibold">Cards</span></span>          
+        </div>
+        <div className=" -mb-4 mt-2 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+        <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
+          <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <option selected>Select a chain</option>
+            <option value="US">United States</option>
+            <option value="CA">Canada</option>
+            <option value="FR">France</option>
+            <option value="DE">Germany</option>
+          </select>
         </div>
 
         <div className="flex flex-col  h-full">
           
           <ul className="whitespace-pre px-2.5 text-[0.9rem] py-5 flex flex-col gap-1  font-medium overflow-x-hidden scrollbar-thin scrollbar-track-white scrollbar-thumb-slate-100   md:h-[68%] h-[70%]">
             <li>
-              <NavLink to={"/analytics"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+              <NavLink to={"/Dpools"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
                 <AiOutlineAppstore size={23} className="min-w-max" />
-                Pools
+                Debit Pools
               </NavLink>
             </li>
             <li>
-              <NavLink to={"/authentication"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+            <NavLink to={"/Dcards"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+                <HiOutlineCreditCard size={23} className="min-w-max" />
+                Debit Cards
+              </NavLink>
+            </li>
+            <li>
+            <NavLink to={"/pools"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
                 <BsPerson size={23} className="min-w-max" />
                 Authentication
               </NavLink>
             </li>
             <li>
-              <NavLink to={"/Dcards"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
-                <HiOutlineCreditCard size={23} className="min-w-max" />
-                Cards
+            <NavLink to={"/Cpools"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+                <AiOutlineAppstore size={23} className="min-w-max" />
+                Credit Pools
               </NavLink>
             </li>
             <li>
-              <NavLink to={"/settings"} className="mb-4 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+              <NavLink to={"/ccards"} className="mb-4 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
                 <SlSettings size={23} className="min-w-max" />
-                Settings
+                Credit Cards
               </NavLink>
             </li>
             <li>

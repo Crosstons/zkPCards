@@ -4,7 +4,7 @@ import './pool.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-function DCards() {
+function Ccards() {
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -52,18 +52,19 @@ function DCards() {
   return (
     <div className=''>
       <h1 className='text-3xl mb-6 font-semibold text-center'>
-        Debit Cards
+        Credit Cards
       </h1>
         <Slider {...settings}>
           {[...Array(8)].map((_, i) => (
             <div key={i} className="px-4 flex">
+              <div className="">
               <div onClick={() => handleCardClick(i)}
                    className={`h-56 mt-4 bg-red-100 rounded-xl relative text-white shadow-md max-w-sm  ${selectedCardIndex === i ? 'ring-4 ring-green-400' : ''} cursor-pointer`}>
-              <img className="relative object-cover w-full h-full rounded-xl" src="https://i.imgur.com/kGkSg1v.png" alt="Card Background"></img>
+              <img className="relative object-cover w-full h-full rounded-xl" src="https://i.imgur.com/Zi6v09P.png" alt="Card Background"></img>
                 <div className="w-full px-8 absolute top-8">
                   <div className="pt-2">
                     <p className="font-light pl-2 tracking-widest text-xs text-gray-300">
-                        Amount
+                        Limit
                     </p>
                     <p className="font-bold text-6xl">
                         {i === 0 ? '8888' : '00.00'}
@@ -87,8 +88,16 @@ function DCards() {
                               {i === 0 ? '03/25' : '-/-'}
                           </p>
                       </div>
+                      <div>
+                      </div>
                     </div>
                   </div>
+                </div>
+                </div>
+                <div className="flex justify-center mt-4">
+                <button className='bg-orange-400 text-white px-6 py-2 rounded-lg shadow-md hover:bg-orange-500 transition-all ease-in-out duration-300'>
+                  Payback
+                </button>
                 </div>
                 </div>
               </div>
@@ -112,4 +121,4 @@ function DCards() {
   );
 }
 
-export default DCards;
+export default Ccards;
