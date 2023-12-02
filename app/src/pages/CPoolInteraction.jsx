@@ -53,10 +53,10 @@ function DPoolInteraction() {
       <div className="xl:w-1/3 sm:w-full md:w-1/2 rounded-xl overflow-hidden shadow-lg grainy-gradient hover:shadow-2xl transition-shadow duration-500 relative justiy-center">
         <div className="pb-4 z-10">
           <div className="flex text-md mb-4 items-center tracking-widest font-extralight justify-center">
-              <span className='w-full bg-blue-100 px-6 py-2 text-center text-blue-600 text-xs'>Holiday Fund</span>
+              <span className='w-full bg-orange-100 px-6 py-2 text-center text-orange-600 text-xs'>Holiday Fund</span>
           </div>
           <div className="px-6 text-center">
-            <div className="text-blue-500 text-4xl font-semibold py-2">$5,000</div>
+            <div className="text-orange-500 text-4xl font-semibold py-2">$5,000</div>
             <div className="flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-credit-card w-5 h-5">
                 <rect width="20" height="14" x="2" y="5" rx="2"/>
@@ -97,7 +97,7 @@ function DPoolInteraction() {
                     20
                 </td>
                 <td class="px-6 py-4 flex justify-center">
-                <button onClick={() => openModal('issue')}  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Issue</button>
+                <button onClick={() => openModal('issue')}  className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg">Issue</button>
                 </td>
             </tr>
             <tr class="odd:bg-white even:bg-gray-50 border-b">
@@ -108,7 +108,7 @@ function DPoolInteraction() {
                     $5000
                 </td>
                 <td class="px-6 py-4 flex justify-center">
-                <button onClick={() => openModal('add')}  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Add</button>
+                <button onClick={() => openModal('add')}  className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg">Add</button>
                 </td>
             </tr>
             <tr class="odd:bg-white even:bg-gray-50 border-b">
@@ -119,7 +119,7 @@ function DPoolInteraction() {
                     --
                 </td>
                 <td class="px-6 py-4 flex justify-center">
-                <button onClick={() => openModal('withdraw')}  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Withdraw</button>
+                <button onClick={() => openModal('withdraw')}  className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg">Withdraw</button>
                 </td>
             </tr>
             <tr class="odd:bg-white even:bg-gray-50 border-b">
@@ -130,7 +130,7 @@ function DPoolInteraction() {
                     --
                 </td>
                 <td className="px-6 py-4 flex justify-center">
-              <button onClick={() => openModal('discard')} className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Discard</button>
+              <button onClick={() => openModal('discard')} className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg">Discard</button>
             </td>
           </tr>
         </tbody>
@@ -171,23 +171,23 @@ function Modal({ title, closeModal, fields, selectField }) {
               <input 
                 key={index}
                 type={field.type} 
-                className="block w-full px-4 py-2 mb-3 text-gray-700 border rounded-md focus:border-blue-500 focus:ring-blue-500" 
+                className="block w-full px-4 py-2 mb-3 text-gray-700 border rounded-md focus:border-orange-500 focus:ring-orange-500" 
                 placeholder={field.label} 
               />
             ))}
             {selectField && (
-              <select className="block w-full px-4 py-2 mb-3 text-gray-700 border rounded-md focus:border-blue-500 focus:ring-blue-500">
+              <select className="block w-full px-4 py-2 mb-3 text-gray-700 border rounded-md focus:border-orange-500 focus:ring-orange-500">
                 <option value="">Select Option</option>
                 <option value="">Any</option>
               </select>
             )}
           </div>
           <div className="items-center px-4 py-3">
-            <button onClick={closeModal} className="px-4 py-2 my-1 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <button onClick={closeModal} className="px-4 py-2 my-1 bg-orange-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300">
               Submit
             </button>
             
-            <button onClick={closeModal} className="px-4 py-2 my-1 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <button onClick={closeModal} className="px-4 py-2 my-1 bg-red-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-orange-300">
               Close
             </button>
           </div>

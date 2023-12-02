@@ -9,9 +9,11 @@ import { SlSettings } from "react-icons/sl";
 import { AiOutlineAppstore } from "react-icons/ai";
 import { BsPerson } from "react-icons/bs";
 import { HiOutlineCreditCard } from "react-icons/hi";
+import { MdOutlineDashboardCustomize } from "react-icons/md";
 import { RiBuilding3Line } from "react-icons/ri";
 import { useMediaQuery } from "react-responsive";
 import { IoWalletOutline } from "react-icons/io5";
+import { CgCreditCard } from "react-icons/cg";
 import { MdMenu } from "react-icons/md";
 import { NavLink, useLocation, useRoutes } from "react-router-dom";
 
@@ -83,11 +85,11 @@ const Sidebar = () => {
         className=" bg-white text-gray z-[999] max-w-[16rem]  w-[16rem] overflow-hidden md:relative fixed min-h-screen shadow-right"
       >
         <div className="flex items-center gap-2.5 font-medium border-b py-3 border-slate-300  mx-3">
-          <img src={logo} alt="" />
-          <span className="text-3xl whitespace-pre mx-2">zkp<span className="text-blue-600 font-semibold">Cards</span></span>          
+          <img src={logo} className="w-10 h-10" alt="" />
+          <span className="text-3xl whitespace-pre mx-2">zkp<span className="text-[#4F6F52] font-semibold">Cards</span></span>          
         </div>
         <div className=" -mb-4 mt-2 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
-        <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
+        <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#739072] focus:border-[#739072] block w-full p-2.5 ">
           <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             <option selected>Select a chain</option>
             <option value="US">United States</option>
@@ -113,26 +115,26 @@ const Sidebar = () => {
               </NavLink>
             </li>
             <li>
-            <NavLink to={"/pools"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
-                <BsPerson size={23} className="min-w-max" />
-                Authentication
-              </NavLink>
-            </li>
-            <li>
             <NavLink to={"/Cpools"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
                 <AiOutlineAppstore size={23} className="min-w-max" />
                 Credit Pools
               </NavLink>
             </li>
             <li>
+            <NavLink to={"/create"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+                <MdOutlineDashboardCustomize size={23} className="min-w-max" />
+                Create Pools
+              </NavLink>
+            </li>
+            <li>
               <NavLink to={"/ccards"} className="mb-4 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
-                <SlSettings size={23} className="min-w-max" />
+                <CgCreditCard size={23} className="min-w-max" />
                 Credit Cards
               </NavLink>
             </li>
             <li>
               <hr className="border"/>
-              <button className="w-full p-2.5 mt-4 flex gap-6 md:cursor-pointer bg-blue-500 hover:bg-blue-600 transition-all duration-300 text-white font-normal rounded-lg hover:cursor-pointer shadow-blue-200 shadow-lg">
+              <button className="w-full p-2.5 mt-4 flex gap-6 md:cursor-pointer bg-[#739072] hover:bg-[#4F6F52] transition-all duration-300 text-white font-normal rounded-lg hover:cursor-pointer shadow-[#ECE3CE] shadow-lg">
                 <IoWalletOutline  size={23} className="min-w-max" />
                 Connect Wallet
               </button>

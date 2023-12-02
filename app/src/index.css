@@ -18,5 +18,5 @@
 
 
 .active {
-  @apply bg-blue-100 text-blue-600;
+  @apply bg-[#ECE3CE] text-[#739072];
 }
