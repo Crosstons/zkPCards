@@ -5,7 +5,7 @@ describe("Factory Contract", function () {
     [this.deployer, this.other] = await ethers.getSigners();
     this.salt =
       "0x736f6d657468696e670000000000000000000000000000000000000000000000";
-    this.Factory = await ethers.getContractFactory("Factory");
+    this.Factory = await ethers.getContractFactory("DCFactory");
   });
 
   beforeEach(async function () {

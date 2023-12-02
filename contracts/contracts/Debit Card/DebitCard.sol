@@ -7,7 +7,7 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
-contract zkPCard is ERC721, ERC721Burnable, Pausable, Ownable {
+contract DebitCard is ERC721, ERC721Burnable, Pausable, Ownable {
 
     error TransferFailed();
     error CardExpired();

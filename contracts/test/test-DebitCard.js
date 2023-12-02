@@ -2,14 +2,14 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { time } = require("@nomicfoundation/hardhat-network-helpers");
 
-describe("zkPCard Contract", function () {
+describe("Debit Card Contract", function () {
   before(async function () {
     [this.deployer, this.other] = await ethers.getSigners();
-    this.zkPCardContract = await ethers.getContractFactory("zkPCard");
+    this.DebitCard = await ethers.getContractFactory("DebitCard");
   });
 
   beforeEach(async function () {
-    this.zkPCard = await this.zkPCardContract.deploy(
+    this.debitcard = await this.DebitCard.deploy(
       "Test",
       "TS",
       this.deployer.address
@@ -17,22 +17,25 @@ describe("zkPCard Contract", function () {
   });
 
   it("Should be deployed with correct owner", async function () {
-    expect(await this.zkPCard.owner()).to.equal(this.deployer.address);
+    expect(await this.debitcard.owner()).to.equal(this.deployer.address);
   });
   it("Should be unpaused", async function () {
-    expect(await this.zkPCard.paused()).to.equal(false);
+    expect(await this.debitcard.paused()).to.equal(false);
   });
   it("Only owner can pause and can be paused correctly", async function () {
     await expect(
-      this.zkPCard.connect(this.other).pause()
-    ).to.be.revertedWithCustomError(this.zkPCard, "OwnableUnauthorizedAccount");
-    await this.zkPCard.connect(this.deployer).pause();
-    expect(await this.zkPCard.paused()).to.equal(true);
+      this.debitcard.connect(this.other).pause()
+    ).to.be.revertedWithCustomError(
+      this.debitcard,
+      "OwnableUnauthorizedAccount"
+    );
+    await this.debitcard.connect(this.deployer).pause();
+    expect(await this.debitcard.paused()).to.equal(true);
   });
 
   it("Owner can issue a debit card", async function () {
     const timestamp = await time.latest();
-    await this.zkPCard
+    await this.debitcard
       .connect(this.deployer)
       .issueCard("Test", this.other, 10000000000, timestamp + 1000);
   });
@@ -41,7 +44,7 @@ describe("zkPCard Contract", function () {
     // Issue a card
     const timestamp = await time.latest();
     const issueAmount = 1000;
-    await this.zkPCard
+    await this.debitcard
       .connect(this.deployer)
       .issueCard("Test", this.other.address, issueAmount, timestamp + 1000);
 
@@ -49,7 +52,7 @@ describe("zkPCard Contract", function () {
     // Spend from the card
     const spendAmount = 500;
     await expect(
-      this.zkPCard
+      this.debitcard
         .connect(this.other)
         .spendFromCard(tokenId, this.deployer.address, spendAmount)
     ).to.be.reverted;
