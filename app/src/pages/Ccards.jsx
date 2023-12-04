@@ -111,7 +111,7 @@ function Ccards() {
         <input type="text" id="large-input" class="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 sm:text-md focus:ring-blue-500 focus:border-blue-500"/>
           <button
             type="submit"
-            className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
           >
             Send
           </button>

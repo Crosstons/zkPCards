@@ -6,6 +6,7 @@ import DPoolInteraction from "./pages/DPoolInteraction";
 import Dcards from "./pages/Dcards";
 import Ccards from "./pages/Ccards";
 import Cpools from "./pages/Cpools";
+import CreatePoolForm from "./pages/CreatePoolForm";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/Dpools" element={<Dpools />} />
         <Route path="/Cpools" element={<Cpools />} />
         <Route path="/DPoolInteraction" element={<DPoolInteraction/>} />
+        <Route path="/create" element={<CreatePoolForm/>} />
       </Routes>
     </RootLayout>
   );
