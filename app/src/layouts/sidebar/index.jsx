@@ -2,26 +2,56 @@ import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import logo from "../assets/logo.png"
+import { onConnectSep, onConnectZk } from "../../connections/wallet";
 
 // * React icons
 import { IoIosArrowBack } from "react-icons/io";
-import { SlSettings } from "react-icons/sl";
 import { AiOutlineAppstore } from "react-icons/ai";
-import { BsPerson } from "react-icons/bs";
 import { HiOutlineCreditCard } from "react-icons/hi";
 import { MdOutlineDashboardCustomize } from "react-icons/md";
-import { RiBuilding3Line } from "react-icons/ri";
 import { useMediaQuery } from "react-responsive";
 import { IoWalletOutline } from "react-icons/io5";
 import { CgCreditCard } from "react-icons/cg";
 import { MdMenu } from "react-icons/md";
-import { NavLink, useLocation, useRoutes } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   let isTabletMid = useMediaQuery({ query: "(max-width: 768px)" });
+  const [zk, setZk] = useState(true);
+  const [connected, setConnected] = useState(false);
+  const [account, setAccount] = useState("");
   const [open, setOpen] = useState(isTabletMid ? false : true);
   const sidebarRef = useRef();
   const { pathname } = useLocation();
+
+  const handleConnect = async () => {
+    const {res, conn} = await onConnectZk(connected);
+    setAccount(res);
+    setConnected(conn);
+  }
+
+  const handleNetworkSwitch = async (zk_bool) => {
+    if(zk_bool == 1) {
+      const {res, conn} = await onConnectZk(connected);
+      setAccount(res);
+      setConnected(conn);
+      setZk(true);
+    }
+    else {
+      const {res, conn} = await onConnectSep(connected);
+      setAccount(res);
+      setConnected(conn);
+      setZk(false);
+    }
+  }
+
+  useEffect(() => {
+    (async () => {
+      const {res, conn} = await onConnectSep(connected);
+      setAccount(res);
+      setConnected(conn);
+    })();
+  }, []);
 
   useEffect(() => {
     if (isTabletMid) {
@@ -89,14 +119,11 @@ const Sidebar = () => {
           <span className="text-3xl whitespace-pre mx-2">zkp<span className="text-[#4F6F52] font-semibold">Cards</span></span>          
         </div>
         <div className=" -mb-4 mt-2 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
-        <select id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#739072] focus:border-[#739072] block w-full p-2.5 ">
+        <select onChange={(e) => handleNetworkSwitch(e.target.value)} id="countries" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#739072] focus:border-[#739072] block w-full p-2.5 ">
           <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            <option selected>Select a chain</option>
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="FR">France</option>
-            <option value="DE">Germany</option>
-          </select>
+            <option selected={zk} value={1}>Polygon zkEVM</option>
+            <option selected={!zk} value={0}>Sepolia</option>
+        </select>
         </div>
 
         <div className="flex flex-col  h-full">
@@ -134,9 +161,9 @@ const Sidebar = () => {
             </li>
             <li>
               <hr className="border"/>
-              <button className="w-full p-2.5 mt-4 flex gap-6 md:cursor-pointer bg-[#739072] hover:bg-[#4F6F52] transition-all duration-300 text-white font-normal rounded-lg hover:cursor-pointer shadow-[#ECE3CE] shadow-lg">
+              <button onClick={handleConnect} className="w-full p-2.5 mt-4 flex gap-6 md:cursor-pointer bg-[#739072] hover:bg-[#4F6F52] transition-all duration-300 text-white font-normal rounded-lg hover:cursor-pointer shadow-[#ECE3CE] shadow-lg">
                 <IoWalletOutline  size={23} className="min-w-max" />
-                Connect Wallet
+                { connected ? account.slice(0,13) + ".." : "Connect Wallet" }
               </button>
             </li>
 
