@@ -1,7 +1,25 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import './pool.css'
+import { ethers, parseEther } from "ethers";
+import debitFactoryABI from '../../../contracts/abi/DCFactory.json';
 
 function Dpools() {
+
+  const ethprovider = new ethers.BrowserProvider(window.ethereum);
+  const [signer, setSigner] = useState();
+
+  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xC99b9524f172146b67DF8c8ff4Af935f97Dd30c4"), debitFactoryABI.abi, signer);
+  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x29a795742f369C121C080488Bb46580676bC5D6f"), debitFactoryABI.abi, signer);
+
+  useEffect(() => {
+    (async () => {
+      const _signer = await ethprovider.getSigner();
+      setSigner(_signer);
+      const _res = await dcFactoryZk.getCardsIssued(_signer.address);
+      console.log(_res);
+    })();
+  }, []);
+
   return (
     <div className='px-4 py-6'>
       <h1 className='text-3xl mb-6 -ml-20 xl:ml-0 font-semibold text-center '>
