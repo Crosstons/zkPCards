@@ -13,9 +13,6 @@ async function main() {
   );
   console.log("Debit Card Contract Deployed!");
   console.log(`Contract Address:  ${deployedDCContract.target} `);
-  console.log(
-    `Explorer link: https://testnet-zkevm.polygonscan.com/address/${deployedDCContract.target}`
-  );
 }
 
 main().catch((error) => {

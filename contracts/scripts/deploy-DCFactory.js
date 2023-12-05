@@ -6,9 +6,6 @@ async function main() {
   const factory = await FactoryContract.deploy();
   console.log("Debit Card Factory Contract Deployed!");
   console.log(`Contract Address:  ${factory.target} `);
-  console.log(
-    `Explorer link: https://testnet-zkevm.polygonscan.com/address/${factory.target}`
-  );
 }
 
 main().catch((error) => {

@@ -8,5 +8,9 @@ module.exports = {
       url: `https://rpc.public.zkevm-test.net`,
       accounts: [process.env.ACCOUNT_PRIVATE_KEY],
     },
+    sepolia: {
+      url: process.env.SEPOLIA_URL,
+      accounts: [process.env.ACCOUNT_PRIVATE_KEY],
+    },
   },
 };
