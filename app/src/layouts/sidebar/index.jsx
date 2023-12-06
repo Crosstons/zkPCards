@@ -47,7 +47,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     (async () => {
-      const {res, conn} = await onConnectSep(connected);
+      const {res, conn} = await onConnectZk(connected);
       setAccount(res);
       setConnected(conn);
     })();

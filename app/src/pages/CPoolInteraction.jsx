@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function DPoolInteraction() {
+function CPoolInteraction() {
   const [isIssueModalOpen, setIssueModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
@@ -197,4 +197,4 @@ function Modal({ title, closeModal, fields, selectField }) {
   );
 }
 
-export default DPoolInteraction;
+export default CPoolInteraction;
