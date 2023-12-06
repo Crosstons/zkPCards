@@ -7,18 +7,19 @@ import Dcards from "./pages/Dcards";
 import Ccards from "./pages/Ccards";
 import Cpools from "./pages/Cpools";
 import CreatePoolForm from "./pages/CreatePoolForm";
+import CPoolInteraction from "./pages/CPoolInteraction";
 
 const App = () => {
   return (
     <RootLayout>
       <Routes>
         <Route path="/" element={<AllApps />} />
-        <Route path="/pools" element={<DPoolInteraction />} />
         <Route path="/Dcards" element={<Dcards />} />
         <Route path="/Ccards" element={<Ccards />} />
         <Route path="/Dpools" element={<Dpools />} />
         <Route path="/Cpools" element={<Cpools />} />
-        <Route path="/DPoolInteraction" element={<DPoolInteraction/>} />
+        <Route path="/CPoolInteraction" element={<CPoolInteraction />} />
+        <Route path="/DPoolInteraction/:addr" element={<DPoolInteraction/>} />
         <Route path="/create" element={<CreatePoolForm/>} />
       </Routes>
     </RootLayout>

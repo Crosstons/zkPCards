@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@fullpage/react-fullpage": "^0.1.40",
+    "axios": "^1.6.2",
+    "ethers": "^6.9.0",
     "flickity": "^2.3.0",
     "framer-motion": "^9.0.1",
     "fullpage.js": "^4.0.20",

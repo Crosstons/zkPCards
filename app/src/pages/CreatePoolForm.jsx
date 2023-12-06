@@ -1,24 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ethers, parseEther } from "ethers";
+import debitFactoryABI from '../../../contracts/abi/DCFactory.json';
 
 function CreatePoolForm() {
-  const [poolType, setPoolType] = useState('');
+
+  const ethprovider = new ethers.BrowserProvider(window.ethereum);
+  const [signer, setSigner] = useState();
+  const [loading, setLoading] = useState(false);
+  const [poolType, setPoolType] = useState(1);
   const [poolName, setPoolName] = useState('');
+  const [poolSymbol, setPoolSymbol] = useState('');
   const [amount, setAmount] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log({ poolType, poolName, amount });
-    // Add logic to handle form submission
-  };
+  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xC99b9524f172146b67DF8c8ff4Af935f97Dd30c4"), debitFactoryABI.abi, signer);
+  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x29a795742f369C121C080488Bb46580676bC5D6f"), debitFactoryABI.abi, signer);
 
-  // Determine the theme color based on the pool type
+  const handleCreate = async () => {
+    setLoading(true);
+    if(poolType == 1) {
+      const ch_Id = window.ethereum.chainId;
+      if(ch_Id == "0x5a2") {
+        try{
+          const _tx = await dcFactoryZk.newCardWithoutSalt(poolName, poolSymbol);
+          console.log(_tx);
+          await _tx.wait();
+          alert("Created Debit Card Pool Successfully!");
+        } catch (error) {
+          console.log(error);
+          alert(error);
+        }
+      } else {
+        try{
+          const _tx = await dcFactorySep.newCardWithoutSalt(poolName, poolSymbol);
+          console.log(_tx);
+          await _tx.wait();
+          alert("Created Debit Card Pool Successfully!");
+        } catch (error) {
+          console.log(error);
+          alert(error);
+        }
+      }
+    } else {
+      console.log(ethprovider);
+      alert("Credit Cards : Work In Progress");
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    (async () => {
+      const _signer = await ethprovider.getSigner();
+      setSigner(_signer);
+//      console.log(window.ethereum.chainId == "0x5a2");
+    })();
+  }, []);
+
   const themeColor = poolType === 'credit' ? 'orange' : 'blue';
 
   return (
     <div className="container mx-auto p-6">
       <div className={`max-w-lg mx-auto bg-white p-8 rounded-xl shadow-md transition duration-500 hover:shadow-lg ${themeColor === 'orange' ? 'border-orange-500' : 'border-blue-500'}`}>
         <h2 className="text-2xl font-semibold text-center mb-6">Create Pools</h2>
-        <form onSubmit={handleSubmit}>
+        <div>
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-gray-700">Pool Type</label>
             <select 
@@ -26,9 +69,8 @@ function CreatePoolForm() {
               onChange={(e) => setPoolType(e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${themeColor === 'orange' ? 'border-orange-500 focus:border-orange-500' : 'border-blue-500 focus:border-blue-500'}`}
             >
-              <option value="">Select Pool Type</option>
-              <option value="credit">Credit Pools</option>
-              <option value="debit">Debit Pools</option>
+              <option value={1} selected>Debit Card Pool</option>
+              <option value={2}>Credit Card Pool</option>
             </select>
           </div>
 
@@ -43,6 +85,18 @@ function CreatePoolForm() {
             />
           </div>
 
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium text-gray-700">Pool Symbol</label>
+            <input 
+              type="text" 
+              value={poolSymbol} 
+              onChange={(e) => setPoolSymbol(e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${themeColor === 'orange' ? 'border-orange-500 focus:border-orange-500' : 'border-blue-500 focus:border-blue-500'}`}
+              placeholder="Enter pool name"
+            />
+          </div>
+
+          { poolType == 2 ? 
           <div className="mb-6">
             <label className="block mb-2 text-sm font-medium text-gray-700">Amount</label>
             <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-700 text-lg">$</span>
@@ -54,11 +108,12 @@ function CreatePoolForm() {
               placeholder="$0.00"
             />
           </div>
+          : "" }
 
-          <button type="submit" className={`w-full py-2 px-4 rounded-lg transition duration-300 font-bold ${themeColor === 'orange' ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}>
-            Create
+          <button onClick={handleCreate} className={`w-full py-2 px-4 rounded-lg transition duration-300 font-bold ${themeColor === 'orange' ? 'bg-orange-500 hover:bg-orange-600 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'}`}>
+            { loading ? "Loading.." : "Create" }
           </button>
-        </form>
+        </div>
       </div>
     </div>
   );

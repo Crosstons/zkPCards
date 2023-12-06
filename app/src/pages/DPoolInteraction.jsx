@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 function DPoolInteraction() {
+
+  const {addr} = useParams();
+
   const [isIssueModalOpen, setIssueModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
@@ -42,6 +46,12 @@ function DPoolInteraction() {
 
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      console.log(addr);
+    })();
+  }, []);
 
   return (
     <div className="container px-4 py-6">
