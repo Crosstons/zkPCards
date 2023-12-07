@@ -3,11 +3,12 @@ pragma solidity 0.8.21;
 
 import {OracleLib, AggregatorV3Interface} from "./Oracle/OracleLib.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
+contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
     using OracleLib for AggregatorV3Interface;
 
     uint256 private _tokenId;
@@ -22,9 +23,9 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
     uint256 public lockedFunds;
     uint256 public interestRate;
 
-    address private constant WETH_ADDRESS = 0xdd13E55209Fd76AfE204dBda4007C227904f0a81;
+    address private WETH_ADDRESS;
+    address private DAI_ADDRESS;
     address private constant ETH_PRICE_FEED_ADDRESS = 0x694AA1769357215DE4FAC081bf1f309aDC325306;
-    address private constant DAI_ADDRESS = 0x3e622317f8C93f7328350cF0B56d9eD4C620C5d6;
     address private constant DAI_PRICE_FEED_ADDRESS = 0x14866185B1962B63C3Ea9E03Bc1da838bab34C19;
 
     struct CardInfo {
@@ -47,11 +48,15 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
         string memory _name, 
         string memory _symbol, 
         address _owner, 
+        address _daiaddress,
+        address _wethaddress,
         uint256 _expirationTime,
         uint256 _interestRate
     ) 
         Ownable(_owner) ERC721(_name, _symbol)
     {
+        DAI_ADDRESS = _daiaddress;
+        WETH_ADDRESS = _wethaddress;
         expirationTime = _expirationTime;
         interestRate = _interestRate;
     }
@@ -144,6 +149,10 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
         require(success, "Withdrawal failed");
     }
 
+    function getTotalSupply() public view returns (uint256) {
+        return totalSupply();
+    }
+
     function _getUsdValue(address priceFeedAddress, uint256 amount) public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(priceFeedAddress);
         (, int256 price,,,) = priceFeed.staleCheckLatestRoundData();
@@ -185,5 +194,30 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721 {
         uint256 tokenId = _tokenId++;
         _safeMint(to, tokenId);
         return tokenId;
+    }
+
+    // The following functions are overrides required by Solidity.
+    function _update(address to, uint256 tokenId, address auth)
+        internal
+        override(ERC721, ERC721Enumerable)
+        returns (address)
+    {
+        return super._update(to, tokenId, auth);
+    }
+
+    function _increaseBalance(address account, uint128 value)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._increaseBalance(account, value);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }

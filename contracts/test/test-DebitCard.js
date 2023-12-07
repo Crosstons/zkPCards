@@ -38,6 +38,7 @@ describe("Debit Card Contract", function () {
     await this.debitcard
       .connect(this.deployer)
       .issueCard("Test", this.other, 10000000000, timestamp + 1000);
+    expect(await this.debitcard.getTotalSupply()).to.equal(1);
   });
 
   it("Can not spend from the card if the pool don't have enough funds", async function () {

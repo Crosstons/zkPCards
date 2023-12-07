@@ -3,11 +3,11 @@ pragma solidity 0.8.21;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Pausable.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
-contract DebitCard is ERC721, ERC721Burnable, Pausable, Ownable {
+contract DebitCard is ERC721, ERC721Enumerable, ERC721Pausable, Ownable {
 
     error TransferFailed();
     error CardExpired();
@@ -18,7 +18,7 @@ contract DebitCard is ERC721, ERC721Burnable, Pausable, Ownable {
     error SendEnoughFunds();
     error CardHasBeenDiscarded();
 
-    uint256 private _tokenId = 1;
+    uint256 private _tokenId;
     uint256 public poolSize;
     string public poolName;
 
@@ -121,6 +121,10 @@ contract DebitCard is ERC721, ERC721Burnable, Pausable, Ownable {
         return cards[tokenId];
     }
 
+    function getTotalSupply() public view returns (uint256) {
+        return totalSupply();
+    }
+
     function pause() public onlyOwner {
         _pause();
         emit ContractPaused();
@@ -135,5 +139,30 @@ contract DebitCard is ERC721, ERC721Burnable, Pausable, Ownable {
         uint256 tokenId = _tokenId++;
         _safeMint(to, tokenId);
         return tokenId;
+    }
+
+    // The following functions are overrides required by Solidity.
+    function _update(address to, uint256 tokenId, address auth)
+        internal
+        override(ERC721, ERC721Enumerable, ERC721Pausable)
+        returns (address)
+    {
+        return super._update(to, tokenId, auth);
+    }
+
+    function _increaseBalance(address account, uint128 value)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._increaseBalance(account, value);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
     }
 }
