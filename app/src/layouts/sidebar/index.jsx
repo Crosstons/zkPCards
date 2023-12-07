@@ -148,15 +148,15 @@ const Sidebar = () => {
               </NavLink>
             </li>
             <li>
-            <NavLink to={"/create"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
-                <MdOutlineDashboardCustomize size={23} className="min-w-max" />
-                Create Pools
+              <NavLink to={"/ccards"} className="p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+                <CgCreditCard size={23} className="min-w-max" />
+                Credit Cards
               </NavLink>
             </li>
             <li>
-              <NavLink to={"/ccards"} className="mb-4 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
-                <CgCreditCard size={23} className="min-w-max" />
-                Credit Cards
+            <NavLink to={"/create"} className="mb-4 p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-medium">
+                <MdOutlineDashboardCustomize size={23} className="min-w-max" />
+                Create Pools
               </NavLink>
             </li>
             <li>
