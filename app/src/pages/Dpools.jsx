@@ -20,17 +20,18 @@ function Dpools() {
       let _res;
       console.log(ch_Id);
       if(ch_Id == "0x5a2") {
-        const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xC99b9524f172146b67DF8c8ff4Af935f97Dd30c4"), debitFactoryABI.abi, ethprovider);
+        const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xfaa78C9ba9502dF7f1ef58e7bFD8148cAb1774f1"), debitFactoryABI.abi, ethprovider);
         _res = await dcFactoryZk.getCardsIssued(_signer.address);
       } else {
-        const dcFactorySep = new ethers.Contract(ethers.getAddress("0x29a795742f369C121C080488Bb46580676bC5D6f"), debitFactoryABI.abi, ethprovider);
+        const dcFactorySep = new ethers.Contract(ethers.getAddress("0x37242118eaBA8adc7681A668D3Db50260e3cd0A8"), debitFactoryABI.abi, ethprovider);
         _res = await dcFactorySep.getCardsIssued(_signer.address);
       }
       for(const i in _res) {
         const dcContract = new ethers.Contract(ethers.getAddress(_res[i]), debitCardABI.abi, ethprovider);
         const _poolName = await dcContract.poolName();
         const _poolSize = await dcContract.poolSize();
-        temp_pools.push({name : _poolName, size : Number(_poolSize), addr : _res[i]});
+        const _poolCardsCount = await dcContract.totalSupply();
+        temp_pools.push({name : _poolName, count: Number(_poolCardsCount), size : Number(_poolSize), addr : _res[i]});
       }
       setPools(temp_pools);
     })();
@@ -56,7 +57,7 @@ function Dpools() {
                     <rect width="20" height="14" x="2" y="5" rx="2"/>
                     <line x1="2" x2="22" y1="10" y2="10"/>
                   </svg>
-                  <div className="text-gray-700 text-s py-1 ml-1 text-center">Active Pool</div>
+                  <div className="text-gray-700 text-s py-1 ml-1 text-center">{_pool.count} Cards</div>
                 </div>
               </div>
             </div>

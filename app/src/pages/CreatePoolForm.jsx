@@ -12,8 +12,8 @@ function CreatePoolForm() {
   const [poolSymbol, setPoolSymbol] = useState('');
   const [amount, setAmount] = useState('');
 
-  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xC99b9524f172146b67DF8c8ff4Af935f97Dd30c4"), debitFactoryABI.abi, signer);
-  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x29a795742f369C121C080488Bb46580676bC5D6f"), debitFactoryABI.abi, signer);
+  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xfaa78C9ba9502dF7f1ef58e7bFD8148cAb1774f1"), debitFactoryABI.abi, signer);
+  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x37242118eaBA8adc7681A668D3Db50260e3cd0A8"), debitFactoryABI.abi, signer);
 
   const handleCreate = async () => {
     setLoading(true);
