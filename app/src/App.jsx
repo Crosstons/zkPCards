@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import RootLayout from "./layouts/RootLayout";
-import AllApps from "./pages/AllApps";
 import Dpools from "./pages/Dpools";
 import DPoolInteraction from "./pages/DPoolInteraction";
 import Dcards from "./pages/Dcards";
@@ -13,7 +12,7 @@ const App = () => {
   return (
     <RootLayout>
       <Routes>
-        <Route path="/" element={<AllApps />} />
+        <Route path="/" element={<Cpools />} />
         <Route path="/Dcards" element={<Dcards />} />
         <Route path="/Ccards" element={<Ccards />} />
         <Route path="/Dpools" element={<Dpools />} />
