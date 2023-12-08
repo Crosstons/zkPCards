@@ -5,7 +5,7 @@ function Cpools() {
   return (
     <div className='px-4 py-6'>
       <h1 className='text-3xl mb-6 -ml-20 xl:ml-0 font-semibold text-center '>
-        Debit Card Pools
+        Credit Card Pools
       </h1>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         {/* Card 1 */}
