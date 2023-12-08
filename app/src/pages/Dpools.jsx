@@ -10,6 +10,14 @@ function Dpools() {
   const ethprovider = new ethers.BrowserProvider(window.ethereum);
   const [signer, setSigner] = useState();
   const [pools, setPools] = useState([]);
+  const [rotation, setRotation] = useState(0);
+
+  // ... existing useState and useEffect ...
+
+  const handleRefreshClick = () => {
+    setRotation(prevRotation => prevRotation + 180); // Increase rotation by 180 degrees on each click
+    // Add refresh logic here
+  };
 
   useEffect(() => {
     (async () => {
@@ -39,9 +47,20 @@ function Dpools() {
 
   return (
     <div className='px-4 py-6'>
-      <h1 className='text-3xl mb-6 -ml-20 xl:ml-0 font-semibold text-center '>
-        Debit Card Pools
-      </h1>
+        <div className='flex justify-between items-center mb-6 -ml-20 xl:ml-0'>
+              <div className=""></div>
+        <h1 className='text-3xl font-semibold'>
+          Debit Card Pools
+        </h1>
+        <div className="p-2 bg-blue-100 rounded-md">
+        <svg onClick={handleRefreshClick} style={{ transform: `rotate(${rotation}deg)` }} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-refresh-cw cursor-pointer hover:text-blue-600 text-blue-500 transition-transform duration-300">
+          <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+          <path d="M21 3v5h-5"/>
+          <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+          <path d="M8 16H3v5"/>
+        </svg>
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         {/* Display Loop Begins */}
         { pools.map(_pool => (
