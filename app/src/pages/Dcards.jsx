@@ -20,6 +20,7 @@ function DCards() {
   const [toAddr, setAddr] = useState("");
   const [amt, setAmt] = useState();
   const [loading, setLoading] = useState(false);
+  const [initloading, setInit] = useState(false);
 
   const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xb00615955E64Fa925cba7E61E39C1130912117f7"), debitFactoryABI.abi, ethprovider);
   const dcFactorySep = new ethers.Contract(ethers.getAddress("0x6995Db1E07A113F4aCf309Cd3479Fa514FDF3592"), debitFactoryABI.abi, ethprovider);
@@ -50,7 +51,6 @@ function DCards() {
 
   useEffect(() => {
     (async () => {
-      setLoading(true);
       const _signer = await ethprovider.getSigner();
       setSigner(_signer);
       const ch_Id = window.ethereum.chainId;
@@ -80,7 +80,7 @@ function DCards() {
       }
       setCards(_cards)
       console.log(_cards);
-      setLoading(false);
+      setInit(true);
     })();
   }, []);
 
@@ -115,7 +115,7 @@ function DCards() {
         Debit Cards
       </h1>
       <div>
-        {loading ? "Loading.." : 
+        {initloading ? 
         <Slider {...settings}>
           {cards.map((_card, i) => (
             <div key={i} className="px-4 flex">
@@ -156,7 +156,7 @@ function DCards() {
               </div>
           ))}
         </Slider>
-        }
+         : "" }
         </div>
         <div className="mt-8">
         <h2 className="text-2xl mb-4 font-semibold text-center">
