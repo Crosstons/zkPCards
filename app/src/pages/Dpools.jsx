@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react'
 import './pool.css'
 import { ethers, parseEther } from "ethers";
-import debitFactoryABI from '../../../contracts/abi/DCFactory.json';
-import debitCardABI from '../../../contracts/abi/DebitCard.json';
+import debitFactoryABI from '../../../contracts/abi/Debit Card/DCFactory.sol/DCFactory.json';
+import debitCardABI from '../../../contracts/abi/Debit Card/DebitCard.sol/DebitCard.json';
 import { Link } from 'react-router-dom';
 
 function Dpools() {
@@ -28,10 +28,10 @@ function Dpools() {
       let _res;
       console.log(ch_Id);
       if(ch_Id == "0x5a2") {
-        const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xfaa78C9ba9502dF7f1ef58e7bFD8148cAb1774f1"), debitFactoryABI.abi, ethprovider);
+        const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xb00615955E64Fa925cba7E61E39C1130912117f7"), debitFactoryABI.abi, ethprovider);
         _res = await dcFactoryZk.getCardsIssued(_signer.address);
       } else {
-        const dcFactorySep = new ethers.Contract(ethers.getAddress("0x37242118eaBA8adc7681A668D3Db50260e3cd0A8"), debitFactoryABI.abi, ethprovider);
+        const dcFactorySep = new ethers.Contract(ethers.getAddress("0x6995Db1E07A113F4aCf309Cd3479Fa514FDF3592"), debitFactoryABI.abi, ethprovider);
         _res = await dcFactorySep.getCardsIssued(_signer.address);
       }
       for(const i in _res) {

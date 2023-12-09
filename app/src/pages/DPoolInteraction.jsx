@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ethers, parseEther } from "ethers";
 import { useNavigate, useParams } from 'react-router-dom';
-import debitCardABI from '../../../contracts/abi/DebitCard.json';
+import debitCardABI from '../../../contracts/abi/Debit Card/DebitCard.sol/DebitCard.json';
 
 function DPoolInteraction() {
 

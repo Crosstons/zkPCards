@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers, parseEther } from "ethers";
-import debitFactoryABI from '../../../contracts/abi/DCFactory.json';
+import debitFactoryABI from '../../../contracts/abi/Debit Card/DCFactory.sol/DCFactory.json';
 
 function CreatePoolForm() {
 
@@ -12,8 +12,8 @@ function CreatePoolForm() {
   const [poolSymbol, setPoolSymbol] = useState('');
   const [amount, setAmount] = useState('');
 
-  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xfaa78C9ba9502dF7f1ef58e7bFD8148cAb1774f1"), debitFactoryABI.abi, signer);
-  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x37242118eaBA8adc7681A668D3Db50260e3cd0A8"), debitFactoryABI.abi, signer);
+  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xb00615955E64Fa925cba7E61E39C1130912117f7"), debitFactoryABI.abi, signer);
+  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x6995Db1E07A113F4aCf309Cd3479Fa514FDF3592"), debitFactoryABI.abi, signer);
 
   const handleCreate = async () => {
     setLoading(true);
