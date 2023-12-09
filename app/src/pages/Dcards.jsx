@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Slider from 'react-slick';
 import { ethers } from "ethers";
-import debitFactoryABI from '../../../contracts/abi/DCFactory.json';
-import debitCardABI from '../../../contracts/abi/DebitCard.json';
+import debitFactoryABI from '../../../contracts/abi/Debit Card/DCFactory.sol/DCFactory.json';
+import debitCardABI from '../../../contracts/abi/Debit Card/DebitCard.sol/DebitCard.json';
 import './pool.css';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -20,9 +20,10 @@ function DCards() {
   const [toAddr, setAddr] = useState("");
   const [amt, setAmt] = useState();
   const [loading, setLoading] = useState(false);
+  const [initloading, setInit] = useState(false);
 
-  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xfaa78C9ba9502dF7f1ef58e7bFD8148cAb1774f1"), debitFactoryABI.abi, ethprovider);
-  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x37242118eaBA8adc7681A668D3Db50260e3cd0A8"), debitFactoryABI.abi, ethprovider);
+  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xb00615955E64Fa925cba7E61E39C1130912117f7"), debitFactoryABI.abi, ethprovider);
+  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x6995Db1E07A113F4aCf309Cd3479Fa514FDF3592"), debitFactoryABI.abi, ethprovider);
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -56,9 +57,9 @@ function DCards() {
       let _cards = [];
       let _res;
       if(ch_Id == "0x5a2") {
-        _res = await dcFactoryZk.getCardsIssued(_signer.address);
+        _res = await dcFactoryZk.getAllCardAddresses();
       } else {
-        _res = await dcFactorySep.getCardsIssued(_signer.address);
+        _res = await dcFactorySep.getAllCardAddresses();
       }
       for(const i in _res) {
         const dcContract = new ethers.Contract(ethers.getAddress(_res[i]), debitCardABI.abi, ethprovider);
@@ -69,8 +70,9 @@ function DCards() {
           const owner = await dcContract.ownerOf(j);
           if(owner == _signer.address) {
             const card_res = await dcContract.getCardInfo(j);
+            const _expire = await dcContract.getDaysUntilExpiration(j);
             if(card_res[4] != true) {
-              _cards.push({token_id : j, token_addr: _res[i], name : card_res[0], issued : Number(card_res[1]), amount_left : Number(card_res[1]) - Number(card_res[2]), expiration : Number(card_res[3]), pool_name : _poolName})
+              _cards.push({token_id : j, days_left : Number(_expire), token_addr: _res[i], name : card_res[0], issued : Number(card_res[1]), amount_left : Number(card_res[1]) - Number(card_res[2]), expiration : Number(card_res[3]), pool_name : _poolName})
             }
           }
           j = j + 1;
@@ -78,6 +80,7 @@ function DCards() {
       }
       setCards(_cards)
       console.log(_cards);
+      setInit(true);
     })();
   }, []);
 
@@ -85,8 +88,8 @@ function DCards() {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 3,
+    slidesToShow: 2,
+    slidesToScroll: 2,
     responsive: [
       {
         breakpoint: 768, // Adjusts for medium screens and below
@@ -111,6 +114,8 @@ function DCards() {
       <h1 className='text-3xl mb-6 font-semibold text-center'>
         Debit Cards
       </h1>
+      <div>
+        {initloading ? 
         <Slider {...settings}>
           {cards.map((_card, i) => (
             <div key={i} className="px-4 flex">
@@ -136,16 +141,14 @@ function DCards() {
                               {_card.name}
                           </p>
                       </div>
-                      { /*
                       <div>
                           <p className="font-light text-xs text-gray-300">
-                              Valid thru
+                              VALID FOR
                           </p>
                           <p className="font-medium tracking-wider text-sm">
-                              {i === 0 ? '03/25' : '-/-'}
+                              {_card.days_left} MORE DAYS
                           </p>
                       </div>
-                      */ }
                     </div>
                   </div>
                 </div>
@@ -153,6 +156,8 @@ function DCards() {
               </div>
           ))}
         </Slider>
+         : "" }
+        </div>
         <div className="mt-8">
         <h2 className="text-2xl mb-4 font-semibold text-center">
           Enter Amount
