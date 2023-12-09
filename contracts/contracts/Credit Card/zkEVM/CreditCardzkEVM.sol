@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.21;
 
-import {OracleLib, AggregatorV3Interface} from "./Oracle/OracleLib.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
+import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
-    using OracleLib for AggregatorV3Interface;
+contract CreditCardzkEVM is Ownable, ERC721, ERC721Enumerable {
+    IPyth pyth;
+    bytes32 daiPriceFeedId;
+    bytes32 wethPriceFeedId;
 
     uint256 private _tokenId;
     uint256 private constant LIQUIDATION_THRESHOLD = 50;
@@ -25,8 +27,6 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
 
     address private WETH_ADDRESS;
     address private DAI_ADDRESS;
-    address private constant ETH_PRICE_FEED_ADDRESS = 0x694AA1769357215DE4FAC081bf1f309aDC325306;
-    address private constant DAI_PRICE_FEED_ADDRESS = 0x14866185B1962B63C3Ea9E03Bc1da838bab34C19;
 
     struct CardInfo {
         string cardName;
@@ -44,21 +44,27 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
         _;
     }
 
-    constructor(
+        constructor(
         string memory _name, 
         string memory _symbol, 
         address _owner, 
         address _daiaddress,
         address _wethaddress,
-        uint256 _expirationTime,
-        uint256 _interestRate
+        uint256 _expirationDays,
+        uint256 _interestRate,
+        address _pyth,
+        bytes32 _daiPriceFeedId,
+        bytes32 _wethPriceFeedId
     ) 
         Ownable(_owner) ERC721(_name, _symbol)
     {
         DAI_ADDRESS = _daiaddress;
         WETH_ADDRESS = _wethaddress;
-        expirationTime = _expirationTime;
+        expirationTime = _expirationDays * 1 days;
         interestRate = _interestRate;
+        pyth = IPyth(_pyth);
+        daiPriceFeedId = _daiPriceFeedId;
+        wethPriceFeedId = _wethPriceFeedId;
     }
 
     function addFunds(uint256 fundsAmount) public onlyOwner moreThanZero(fundsAmount) {
@@ -67,9 +73,9 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
         require(success, "Transfer Failed!");
     }
 
-    function issueCard(string memory cardName, uint256 issueAmount) public nonReentrant moreThanZero(issueAmount) {
-        uint256 issueAmountInUsd = _getUsdValue(DAI_PRICE_FEED_ADDRESS, issueAmount);
-        uint256 collateralAmountInWeth = _getTokenAmountFromUsd(ETH_PRICE_FEED_ADDRESS, issueAmountInUsd * 2);
+    function issueCard(string memory cardName, uint256 issueAmount, bytes[] calldata pythUpdateData) public moreThanZero(issueAmount) {
+        uint256 issueAmountInUsd = _getUsdValue(daiPriceFeedId, issueAmount, pythUpdateData);
+        uint256 collateralAmountInWeth = _getTokenAmountFromUsd(wethPriceFeedId, issueAmountInUsd * 2, pythUpdateData);
         bool success = IERC20(WETH_ADDRESS).transferFrom(msg.sender, address(this), collateralAmountInWeth);
         require(success, "Collateral transfer failed");
         uint256 cardId = safeMint(msg.sender);
@@ -85,7 +91,7 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
     }
 
     function spendFromCard(uint256 tokenId, uint256 spendAmount, address recipient) 
-        public nonReentrant moreThanZero(spendAmount) 
+        public moreThanZero(spendAmount) 
     {
         require(ownerOf(tokenId) == msg.sender, "Not the card owner");
         CardInfo storage card = cards[tokenId];
@@ -101,9 +107,9 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
         require(success, "DAI transfer failed");
     }
 
-    function liquidate(uint256 tokenId) public onlyOwner {
+    function liquidate(uint256 tokenId, bytes[] calldata pythUpdateData) public onlyOwner {
         require(ownerOf(tokenId) != address(0), "TokenId doesn't exist");
-        uint256 healthFactor = calculateHealthFactor(tokenId);
+        uint256 healthFactor = calculateHealthFactor(tokenId, pythUpdateData);
         require(healthFactor < MIN_HEALTH_FACTOR, "Health factor not low enough for liquidation");
 
         CardInfo storage card = cards[tokenId];
@@ -123,7 +129,7 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
         require(daiTransfer, "DAI transfer failed");
     }
 
-    function repay(uint256 tokenId) public nonReentrant {
+    function repay(uint256 tokenId) public {
         require(ownerOf(tokenId) == msg.sender, "Not the card owner");
         CardInfo storage card = cards[tokenId];
         require(!card.hasBeenDiscarded, "Card has been discarded");
@@ -153,28 +159,42 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
         return totalSupply();
     }
 
-    function _getUsdValue(address priceFeedAddress, uint256 amount) public view returns (uint256) {
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(priceFeedAddress);
-        (, int256 price,,,) = priceFeed.staleCheckLatestRoundData();
-        return ((uint256(price) * ADDITIONAL_FEED_PRECISION) * amount) / PRECISION;
+    function getDaysUntilExpiration(uint256 tokenId) public view returns (uint256) {
+        CardInfo storage card = cards[tokenId];
+        if (block.timestamp >= card.expirationTime) {
+            return 0;
+        }
+        uint256 timeLeftInSeconds = card.expirationTime - block.timestamp;
+        uint256 daysRemaining = timeLeftInSeconds / 1 days;
+        return daysRemaining;
     }
 
-    function _getTokenAmountFromUsd(address priceFeedAddress, uint256 usdAmountInWei) public view returns (uint256) {
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(priceFeedAddress);
-        (, int256 price,,,) = priceFeed.staleCheckLatestRoundData();
-        return ((usdAmountInWei * PRECISION) / (uint256(price) * ADDITIONAL_FEED_PRECISION));
+    function _getUsdValue(bytes32 priceFeedId, uint256 amount, bytes[] calldata pythUpdateData) public returns (uint256) {
+        uint updateFee = pyth.getUpdateFee(pythUpdateData);
+        pyth.updatePriceFeeds{value: updateFee}(pythUpdateData);
+        PythStructs.Price memory currentPrice = pyth.getPrice(priceFeedId);
+        uint256 price = convertToUint(currentPrice, 18);
+        return (price * amount) / PRECISION;
     }
 
-    function calculateHealthFactor(uint256 tokenId) public view returns (uint256) {
-        (uint256 totalDaiIssuedInUsd, uint256 totalCollateralInUsd) = _getAccountInformation(tokenId);
+    function _getTokenAmountFromUsd(bytes32 priceFeedId, uint256 usdAmountInWei, bytes[] calldata pythUpdateData) public returns (uint256) {
+        uint updateFee = pyth.getUpdateFee(pythUpdateData);
+        pyth.updatePriceFeeds{value: updateFee}(pythUpdateData);
+        PythStructs.Price memory currentPrice = pyth.getPrice(priceFeedId);
+        uint256 price = convertToUint(currentPrice, 18);
+        return (usdAmountInWei * PRECISION) / price;
+    }
+
+    function calculateHealthFactor(uint256 tokenId,  bytes[] calldata pythUpdateData) public returns (uint256) {
+        (uint256 totalDaiIssuedInUsd, uint256 totalCollateralInUsd) = _getAccountInformation(tokenId, pythUpdateData);
         return _calculateHealthFactor(totalDaiIssuedInUsd, totalCollateralInUsd);
     }
 
-    function _getAccountInformation(uint256 tokenId) private view returns (uint256 totalDaiIssuedInUsd, uint256 totalCollateralInUsd) {
+    function _getAccountInformation(uint256 tokenId, bytes[] calldata pythUpdateData) private returns (uint256 totalDaiIssuedInUsd, uint256 totalCollateralInUsd) {
         CardInfo storage card = cards[tokenId];
         
-        totalDaiIssuedInUsd = _getUsdValue(DAI_PRICE_FEED_ADDRESS, card.amountIssued);
-        totalCollateralInUsd = _getUsdValue(ETH_PRICE_FEED_ADDRESS, card.collateralAmount);
+        totalDaiIssuedInUsd = _getUsdValue(daiPriceFeedId, card.amountIssued, pythUpdateData);
+        totalCollateralInUsd = _getUsdValue(wethPriceFeedId, card.collateralAmount, pythUpdateData);
 
         return (totalDaiIssuedInUsd, totalCollateralInUsd);
     }
@@ -185,8 +205,8 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
         return (collateralAdjustedForThreshold * PRECISION) / totalDaiIssuedInUsd;
     }
 
-    function revertIfHealthFactorIsBroken(uint256 tokenId) private view {
-        uint256 healthFactor = calculateHealthFactor(tokenId);
+    function revertIfHealthFactorIsBroken(uint256 tokenId, bytes[] calldata pythUpdateData) private {
+        uint256 healthFactor = calculateHealthFactor(tokenId, pythUpdateData);
         require(healthFactor >= MIN_HEALTH_FACTOR, "Health factor below minimum threshold");
     }
 
@@ -194,6 +214,25 @@ contract CreditCard is ReentrancyGuard, Ownable, ERC721, ERC721Enumerable {
         uint256 tokenId = _tokenId++;
         _safeMint(to, tokenId);
         return tokenId;
+    }
+
+    function convertToUint(
+        PythStructs.Price memory price,
+        uint8 targetDecimals
+    ) private pure returns (uint256) {
+        if (price.price < 0 || price.expo > 0 || price.expo < -255) {
+            revert();
+        }
+        uint8 priceDecimals = uint8(uint32(-1 * price.expo));
+        if (targetDecimals >= priceDecimals) {
+            return
+                uint(uint64(price.price)) *
+                10 ** uint32(targetDecimals - priceDecimals);
+        } else {
+            return
+                uint(uint64(price.price)) /
+                10 ** uint32(priceDecimals - targetDecimals);
+        }
     }
 
     // The following functions are overrides required by Solidity.
