@@ -49,19 +49,20 @@ contract DebitCard is ERC721, ERC721Enumerable, ERC721Pausable, Ownable {
         string memory name,
         address to, 
         uint256 amountIssued,  
-        uint256 expirationTime
+        uint256 expirationDays
     ) external onlyOwner 
     {
+        uint256 expirationTimestamp = block.timestamp + expirationDays * 1 days;
         uint256 tokenId = safeMint(to);
         CardInfo memory newCard = CardInfo({
         cardName: name,
         amountIssued: amountIssued,
         amountSpent: 0,
-        expirationTime: expirationTime,
+        expirationTime: expirationTimestamp,
         hasBeenDiscarded: false
         });
         cards[tokenId] = newCard;
-        emit CardIssued(tokenId, name, to, amountIssued, expirationTime);
+        emit CardIssued(tokenId, name, to, amountIssued, expirationTimestamp);
     }
 
     function spendFromCard(uint256 tokenId, address recipient, uint256 spendAmount) external whenNotPaused {
@@ -103,12 +104,18 @@ contract DebitCard is ERC721, ERC721Enumerable, ERC721Pausable, Ownable {
     function updateCard(
         uint256 tokenId, 
         uint256 additionalAmount,
-        uint256 newExpirationTime
-        ) external onlyOwner {
+        uint256 newExpirationDays
+    ) external onlyOwner {
+        uint256 newExpirationTimestamp = block.timestamp + newExpirationDays * 1 days;
         CardInfo storage card = cards[tokenId];
         card.amountIssued += additionalAmount;
-        card.expirationTime = newExpirationTime;
-        emit CardUpdated(tokenId, additionalAmount, newExpirationTime);
+        card.expirationTime = newExpirationTimestamp;
+        emit CardUpdated(tokenId, additionalAmount, newExpirationTimestamp);
+    }
+
+    function withdrawFunds(uint256 amount) external onlyOwner {
+        require(amount <= address(this).balance, "Not enough funds in the contract!");
+        payable(owner()).transfer(amount);
     }
 
     function discardCard(uint256 tokenId) external onlyOwner {
@@ -123,6 +130,16 @@ contract DebitCard is ERC721, ERC721Enumerable, ERC721Pausable, Ownable {
 
     function getTotalSupply() public view returns (uint256) {
         return totalSupply();
+    }
+
+    function getDaysUntilExpiration(uint256 tokenId) public view returns (uint256) {
+        CardInfo storage card = cards[tokenId];
+        if (block.timestamp >= card.expirationTime) {
+            return 0;
+        }
+        uint256 timeLeftInSeconds = card.expirationTime - block.timestamp;
+        uint256 daysRemaining = timeLeftInSeconds / 1 days; 
+        return daysRemaining;
     }
 
     function pause() public onlyOwner {

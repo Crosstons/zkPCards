@@ -6,6 +6,7 @@ import {DebitCard} from "./DebitCard.sol";
 contract DCFactory {
     error AddressesDiffer();
 
+    address[] allCards;
     mapping (address => address[]) cardsIssued;
 
     event CardCreated(address indexed cardAddress);
@@ -17,6 +18,7 @@ contract DCFactory {
     {
         DebitCard newCard = new DebitCard(name, symbol, msg.sender);
         cardsIssued[msg.sender].push(address(newCard));
+        allCards.push(address(newCard));
         emit CardCreated(address(newCard));
         return address(newCard);
     }
@@ -34,6 +36,7 @@ contract DCFactory {
             revert AddressesDiffer();
         }
         cardsIssued[initialOwner].push(address(newCard));
+        allCards.push(address(newCard));
         emit CardCreated(address(newCard));
         return address(newCard);
     }
@@ -64,5 +67,9 @@ contract DCFactory {
 
     function getCardsIssued(address issuer) public view returns(address[] memory) {
         return cardsIssued[issuer];
+    }
+
+    function getAllCardAddresses() public view returns(address[] memory) {
+        return allCards;
     }
 }
