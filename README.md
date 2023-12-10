@@ -14,10 +14,45 @@ Welcome to zkPCards, a cutting-edge financial platform combining traditional ban
 
 - **Blockchain Networks:** Sepolia (Ethereum), Polygon zkEVM Testnet
 - **Oracles:** Chainlink (Sepolia), Pyth Network (Polygon zkEVM Testnet)
+- **Frontend:** React JS
 - **Smart Contracts:** Solidity
 - **Development Tools:** Hardhat
-- **Frontend:** React JS
-- **Backend:** Express JS
+
+---
+
+## 🌟 Project Highlights
+
+### Debit Cards on zkPCards
+
+#### Overview:
+
+The Debit Card system in zkPCards, deployed on both Sepolia and zkEVM Testnet, offers a straightforward and efficient digital spending solution. This system allows users to transact instantly using blockchain technology, making it a user-friendly alternative to traditional banking cards.
+
+#### How it Works:
+
+- **ERC-721 NFT Representation:** Each debit card is a unique Non-Fungible Token (NFT) on the blockchain, identifiable and transferable. This NFT representation transforms each card into a distinct digital asset, providing clear ownership and the ability to transfer the card's access and associated funds to another user seamlessly.
+
+- **User Control and Accessibility**: Whoever holds the NFT (the debit card) has complete access to its funds. This feature allows for easy transferability of the card's access and balance, making it a flexible financial tool.
+
+- **Loading and Spending Flexibility:** Users can load their cards with funds and use the balance for a variety of transactions, mirroring the functionality of a conventional debit card but with the added benefits of blockchain technology.
+
+- **Expiration and Renewability:** The cards come with an expiration date, ensuring security and up-to-date functionality. Users can track the days left until expiration and renew their cards when necessary, maintaining continuous access to their funds.
+
+### Credit Cards on zkPCards
+
+#### Overview:
+
+The Credit Card system in zkPCards utilizes Chainlink oracles on Sepolia and Pyth oracles on zkEVM. This dual-system approach ensures accurate price feeds and a reliable credit service across different blockchain networks.
+
+#### How it Works:
+
+- **NFT-Based Credit Cards:** Following the debit card model, each credit card is also an ERC-721 NFT. This format provides transferability of credit privileges and clear ownership: the NFT holder is the legitimate user of the credit card, with full access to its credit line.
+
+- **Collateral-Based Credit Issuance:** Users can secure credit by depositing collateral, such as WETH. The credit limit adjusts dynamically, reflecting real-time market conditions and the user's collateral value.
+
+- **Health Factor Monitoring:** The system continuously monitors each account's health factor, assessing the risk and stability of the credit issued. This mechanism is crucial for maintaining the system's integrity, especially in volatile market conditions.
+
+- **Secure and Transparent Liquidation Process:** In case the health factor falls below a certain threshold, the system can initiate a transparent and secure liquidation process to safeguard the ecosystem's stability.
 
 ---
 
@@ -36,33 +71,3 @@ Explore our Chainlink integration in detail:
 ## 🔗 zkEVM and Pyth Network Usage
 
 On zkEVM Testnet, we harness the Pyth Network for high-fidelity price feeds, combining zkEVM's efficiency with Pyth oracles' accuracy.
-
----
-
-## 🌟 Project Highlights
-
-### Debit Cards on zkPCards
-
-#### Overview:
-
-The Debit Card system in zkPCards, deployed on both Sepolia and zkEVM Testnet, offers a straightforward and efficient digital spending solution. This system allows users to transact instantly using blockchain technology, making it a user-friendly alternative to traditional banking cards.
-
-#### How it Works:
-
-- **NFT Representation:** Each debit card is uniquely represented as a Non-Fungible Token (NFT), making it a distinct digital asset on the blockchain. This NFT format ensures that each card is identifiable and transferable.
-- **Loading and Spending:** Users can load their cards with funds, which are then available for spending. The balance on the card can be used for various transactions, just like a regular debit card.
-- **Expiration and Renewal:** Debit cards come with an expiration date, ensuring security and regular updates. Users can easily check the remaining days until expiration and renew their cards as needed.
-
-### Credit Cards on zkPCards
-
-#### Overview:
-
-The Credit Card system in zkPCards utilizes Chainlink oracles on Sepolia and Pyth oracles on zkEVM. This dual-system approach ensures accurate price feeds and a reliable credit service across different blockchain networks.
-
-#### How it Works:
-
-- **NFT-Based Credit Cards:** Similar to the debit card system, each credit card is also represented as an NFT. This unique representation allows for the transferability and ownership of credit privileges.
-- **Collateral and Spending:** Users can deposit collateral (like WETH) to issue credit against it. This credit can then be spent, with the system dynamically adjusting credit limits based on real-time market data.
-- **Health Factor and Liquidation:** The health factor of each credit card account is continuously monitored, ensuring the safety of the system. In case of market volatility, the system can initiate liquidation processes to maintain balance.
-
----
