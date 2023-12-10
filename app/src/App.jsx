@@ -18,7 +18,7 @@ const App = () => {
         <Route path="/Ccards" element={<Ccards />} />
         <Route path="/Dpools" element={<Dpools />} />
         <Route path="/Cpools" element={<Cpools />} />
-        <Route path="/CPoolInteraction" element={<CPoolInteraction />} />
+        <Route path="/CPoolInteraction/:addr" element={<CPoolInteraction />} />
         <Route path="/DPoolInteraction/:addr" element={<DPoolInteraction/>} />
         <Route path="/create" element={<CreatePoolForm/>} />
       </Routes>

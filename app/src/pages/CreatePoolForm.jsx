@@ -118,7 +118,7 @@ function CreatePoolForm() {
               value={poolSymbol} 
               onChange={(e) => setPoolSymbol(e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${themeColor === 'orange' ? 'border-orange-500 focus:border-orange-500' : 'border-blue-500 focus:border-blue-500'}`}
-              placeholder="Enter pool name"
+              placeholder="Enter pool symbol"
             />
           </div>
 
@@ -133,7 +133,6 @@ function CreatePoolForm() {
               value={interest} 
               onChange={(e) => setInterest(e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none ${themeColor === 'orange' ? 'border-orange-500 focus:border-orange-500' : 'border-blue-500 focus:border-blue-500'}`}
-              placeholder="Enter pool name"
             />
           </div>
           <div className="mb-6">
