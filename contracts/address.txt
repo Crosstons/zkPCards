@@ -1,0 +1,6 @@
+Debit Card Factory
+- Sepolia: 0xC835983E73F5458c1D158B274CeECcB4584Fef18
+- zkEVM Testnet: 0x22A54db409c4c1244039178Ac2D4f5082b05daDE
+Credit Card Factory: 
+- Sepolia: 
+- zkEVM Testnet: 
