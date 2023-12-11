@@ -22,8 +22,8 @@ function DCards() {
   const [loading, setLoading] = useState(false);
   const [initloading, setInit] = useState(false);
 
-  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xb00615955E64Fa925cba7E61E39C1130912117f7"), debitFactoryABI.abi, ethprovider);
-  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x6995Db1E07A113F4aCf309Cd3479Fa514FDF3592"), debitFactoryABI.abi, ethprovider);
+  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0x22A54db409c4c1244039178Ac2D4f5082b05daDE"), debitFactoryABI.abi, ethprovider);
+  const dcFactorySep = new ethers.Contract(ethers.getAddress("0xC835983E73F5458c1D158B274CeECcB4584Fef18"), debitFactoryABI.abi, ethprovider);
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);

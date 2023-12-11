@@ -1,6 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ethers } from "ethers";
+import creditCardABI from '../../../contracts/abi/Credit Card/Chainlink/CreditCard.sol/CreditCard.json';
 
 function CPoolInteraction() {
+
+  const {addr} = useParams();
+
+  const navigate = useNavigate();
+  
+  const [isOwner, setOwner] = useState(false);
+
+  const ethprovider = new ethers.BrowserProvider(window.ethereum);
+  const [signer, setSigner] = useState();
+
+  const ccCard = new ethers.Contract(ethers.getAddress(addr), creditCardABI.abi, ethprovider);
   const [isIssueModalOpen, setIssueModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false);
@@ -16,9 +30,6 @@ function CPoolInteraction() {
         break;
       case 'withdraw':
         setWithdrawModalOpen(true);
-        break;
-      case 'discard':
-        setDiscardModalOpen(true);
         break;
       default:
     }
@@ -43,10 +54,19 @@ function CPoolInteraction() {
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      const _signer = await ethprovider.getSigner();
+      setSigner(_signer);
+      const _res = await ccCard.owner();
+      setOwner(_res == _signer.address);
+    })();
+  }, []);
+
   return (
     <div className="container px-4 py-6">
       <h1 className='text-3xl mb-6 -ml-20 xl:ml-0 font-semibold text-center '>
-        Debit Pool Interaction
+        Credit Pool Interaction
       </h1>
       <div className="flex justify-center mb-16">
 
@@ -100,6 +120,8 @@ function CPoolInteraction() {
                 <button onClick={() => openModal('issue')}  className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg">Issue</button>
                 </td>
             </tr>
+            {isOwner ? 
+            <>
             <tr class="odd:bg-white even:bg-gray-50 border-b">
                 <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                     Add funds
@@ -122,17 +144,8 @@ function CPoolInteraction() {
                 <button onClick={() => openModal('withdraw')}  className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg">Withdraw</button>
                 </td>
             </tr>
-            <tr class="odd:bg-white even:bg-gray-50 border-b">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                    Discard cards
-                </th>
-                <td class="px-6 py-4">
-                    --
-                </td>
-                <td className="px-6 py-4 flex justify-center">
-              <button onClick={() => openModal('discard')} className="bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg">Discard</button>
-            </td>
-          </tr>
+            </>
+            : "" }
         </tbody>
         </table>
       </div>
@@ -145,16 +158,19 @@ function CPoolInteraction() {
           { label: 'Limit', type: 'number' },
           { label: 'Expiration', type: 'number' }
         ]} />}
-        
-      {isAddModalOpen && <Modal title="Add Funds" closeModal={() => closeModal('add')} 
-      fields={[
-          { label: 'Amount', type: 'text' },
-        ]} />}
-      {isWithdrawModalOpen && <Modal title="Withdraw Funds" closeModal={() => closeModal('withdraw')} 
-      fields={[
-          { label: 'Amount', type: 'text' }
-        ]} />}
-      {isDiscardModalOpen && <Modal title="Discard Cards" closeModal={() => closeModal('discard')} selectField />}
+
+      {isOwner ?   
+      <>
+        {isAddModalOpen && <Modal title="Add Funds" closeModal={() => closeModal('add')} 
+        fields={[
+            { label: 'Amount', type: 'text' },
+          ]} />}
+        {isWithdrawModalOpen && <Modal title="Withdraw Funds" closeModal={() => closeModal('withdraw')} 
+        fields={[
+            { label: 'Amount', type: 'text' }
+          ]} />}
+      </>  
+      : "" }
     </div>
   );
 }

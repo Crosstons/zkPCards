@@ -14,8 +14,8 @@ function CreatePoolForm() {
   const [expiration, setExpiration] = useState();
   const [interest, setInterest] = useState();
 
-  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0xb00615955E64Fa925cba7E61E39C1130912117f7"), debitFactoryABI.abi, signer);
-  const dcFactorySep = new ethers.Contract(ethers.getAddress("0x6995Db1E07A113F4aCf309Cd3479Fa514FDF3592"), debitFactoryABI.abi, signer);
+  const dcFactoryZk = new ethers.Contract(ethers.getAddress("0x22A54db409c4c1244039178Ac2D4f5082b05daDE"), debitFactoryABI.abi, signer);
+  const dcFactorySep = new ethers.Contract(ethers.getAddress("0xC835983E73F5458c1D158B274CeECcB4584Fef18"), debitFactoryABI.abi, signer);
   const ccFactorySep = new ethers.Contract(ethers.getAddress("0x4d6084E753576dc9a2422134893fECf048bF05d0"), creditFactoryABI.abi, signer);
 
   const handleCreate = async () => {

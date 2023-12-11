@@ -22,6 +22,8 @@ function DPoolInteraction() {
   const [toAddr, setToAddr] = useState("");
   const [cardName, setCardName] = useState("");
   const [expiration, setExpiration] = useState();
+  const [cardsList, setCardsList] = useState();
+  const [selectCard, setSelectedCard] = useState(0);
 
   const [isIssueModalOpen, setIssueModalOpen] = useState(false);
   const [isAddModalOpen, setAddModalOpen] = useState(false);
@@ -68,7 +70,7 @@ function DPoolInteraction() {
     setLoading(true);
     try{
       const _dcCard = new ethers.Contract(ethers.getAddress(addr), debitCardABI.abi, signer);
-      const tx = await _dcCard.addFundsToPool(amount, {value : amount});
+      const tx = await _dcCard.withdrawFunds(amount);
       console.log(tx);
       await tx.wait();
       alert("Funds Withdrawn Successfully!");
@@ -86,7 +88,7 @@ function DPoolInteraction() {
     setLoading(true);
     try{
       const _dcCard = new ethers.Contract(ethers.getAddress(addr), debitCardABI.abi, signer);
-      const tx = await _dcCard.discardCard();
+      const tx = await _dcCard.discardCard(selectCard);
       console.log(tx);
       await tx.wait();
       alert("Card Discarded Successfully!");
@@ -148,6 +150,17 @@ function DPoolInteraction() {
       setPoolSize(Number(_poolSize));
       const _cardCount = await dcCard.totalSupply();
       setCardCount(Number(_cardCount));
+      let _temp = [];
+      let i = 0;
+      while(i<_cardCount) {
+        const _res = await dcCard.getCardInfo(i);
+        console.log(_res);
+        if(_res[4] == false) {
+        _temp.push({token_id : i, name : _res[0]});
+        }
+        i++;
+      }
+      setCardsList(_temp);
       setLoading(false);
     })();
   }, []);
@@ -171,7 +184,7 @@ function DPoolInteraction() {
                 <rect width="20" height="14" x="2" y="5" rx="2"/>
                 <line x1="2" x2="22" y1="10" y2="10"/>
               </svg>
-              <div className="text-gray-700 text-s py-1 ml-1 text-center">{cardCount} Cards Issued</div>
+              <div className="text-gray-700 text-s py-1 ml-1 text-center">{cardCount} Card/s Issued</div>
             </div>
           </div>
         </div>
@@ -262,14 +275,14 @@ function DPoolInteraction() {
       {isWithdrawModalOpen && <Modal title="Withdraw Funds" closeModal={() => closeModal('withdraw')} 
       fields={[
           { label: 'Amount', type: 'text', value: amount, update: setAmount }
-        ]} />}
-      {isDiscardModalOpen && <Modal title="Discard Cards" closeModal={() => closeModal('discard')} selectField />}
+        ]}  handleFunc={handleWithdraw}/>}
+      {isDiscardModalOpen && <Modal title="Discard Cards" closeModal={() => closeModal('discard')} selectField={true} selectFields={cardsList} updateSelect={setSelectedCard} handleFunc={handleDiscard}/>}
     </div>
   );
 }
 
 
-function Modal({ title, closeModal, fields, selectField, handleFunc }) {
+function Modal({ title, closeModal, fields, selectField, selectFields, updateSelect, handleFunc }) {
 
   const [loading, setLoading] = useState(false);
 
@@ -297,9 +310,11 @@ function Modal({ title, closeModal, fields, selectField, handleFunc }) {
               />
             ))}
             {selectField && (
-              <select className="block w-full px-4 py-2 mb-3 text-gray-700 border rounded-md focus:border-blue-500 focus:ring-blue-500">
+              <select onChange={(e) => updateSelect(e.target.value)} className="block w-full px-4 py-2 mb-3 text-gray-700 border rounded-md focus:border-blue-500 focus:ring-blue-500">
                 <option value="">Select Option</option>
-                <option value="">Any</option>
+                {selectFields?.map((_field, _index) => (
+                  <option value={_field.token_id} key={_index}>{_field.name}</option>
+                ))}
               </select>
             )}
           </div>

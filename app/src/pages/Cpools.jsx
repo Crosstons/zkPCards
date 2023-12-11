@@ -28,7 +28,7 @@ function Cpools() {
       }
       for(const i in _res) {
         const ccContract = new ethers.Contract(ethers.getAddress(_res[i]), creditCardABI.abi, ethprovider);
-        const _poolName = "Test Name";
+        const _poolName = await ccContract.name();
         const _poolSize = await ccContract.poolBalance();
         const _poolCardsCount = await ccContract.totalSupply();
         temp_pools.push({name : _poolName, count: Number(_poolCardsCount), size : Number(_poolSize), addr : _res[i]});
