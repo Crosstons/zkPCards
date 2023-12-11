@@ -115,6 +115,7 @@ contract DebitCard is ERC721, ERC721Enumerable, ERC721Pausable, Ownable {
 
     function withdrawFunds(uint256 amount) external onlyOwner {
         require(amount <= address(this).balance, "Not enough funds in the contract!");
+        poolSize += amount;
         payable(owner()).transfer(amount);
     }
 
